@@ -1,0 +1,148 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 686.4274999999999 1313.4689999999998" width="686.4274999999999" height="1313.4689999999998" style="--bg:#FFFFFF;--fg:#1E293B;--line:#64748B;--muted:#475569;--surface:#F8FAFC;--border:#CBD5E1;background:var(--bg)">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap');
+  text { font-family: 'Inter', system-ui, sans-serif; }
+  svg {
+    /* Derived from --bg and --fg (overridable via --line, --accent, etc.) */
+    --_text:          var(--fg);
+    --_text-sec:      var(--muted, color-mix(in srgb, var(--fg) 60%, var(--bg)));
+    --_text-muted:    var(--muted, color-mix(in srgb, var(--fg) 40%, var(--bg)));
+    --_text-faint:    color-mix(in srgb, var(--fg) 25%, var(--bg));
+    --_line:          var(--line, color-mix(in srgb, var(--fg) 50%, var(--bg)));
+    --_arrow:         var(--accent, color-mix(in srgb, var(--fg) 85%, var(--bg)));
+    --_node-fill:     var(--surface, color-mix(in srgb, var(--fg) 3%, var(--bg)));
+    --_node-stroke:   var(--border, color-mix(in srgb, var(--fg) 20%, var(--bg)));
+    --_group-fill:    var(--bg);
+    --_group-hdr:     color-mix(in srgb, var(--fg) 5%, var(--bg));
+    --_inner-stroke:  color-mix(in srgb, var(--fg) 12%, var(--bg));
+    --_key-badge:     color-mix(in srgb, var(--fg) 10%, var(--bg));
+  }
+</style>
+<defs>
+  <marker id="arrowhead" markerWidth="8" markerHeight="5" refX="7" refY="2.5" orient="auto">
+    <polygon points="0 0, 8 2.5, 0 5" fill="var(--_arrow)" stroke="var(--_arrow)" stroke-width="0.75" stroke-linejoin="round" />
+  </marker>
+  <marker id="arrowhead-start" markerWidth="8" markerHeight="5" refX="1" refY="2.5" orient="auto-start-reverse">
+    <polygon points="8 0, 0 2.5, 8 5" fill="var(--_arrow)" stroke="var(--_arrow)" stroke-width="0.75" stroke-linejoin="round" />
+  </marker>
+</defs>
+<g class="subgraph" data-id="Node_Capabilities" data-label="Node 核心特性">
+  <rect x="40" y="279.20000000000005" width="423.14199999999994" height="250.1" rx="0" ry="0" fill="var(--_group-fill)" stroke="var(--_node-stroke)" stroke-width="1" />
+  <rect x="40" y="279.20000000000005" width="423.14199999999994" height="28" rx="0" ry="0" fill="var(--_group-hdr)" stroke="var(--_node-stroke)" stroke-width="1" />
+  <text x="52" y="293.20000000000005" font-size="12" font-weight="600" fill="var(--_text-sec)" dy="4.199999999999999">Node 核心特性</text>
+</g>
+<g class="subgraph" data-id="Advance_Control" data-label="三大进阶控制原语">
+  <rect x="174.2526666666666" y="810.8" width="472.1748333333333" height="462.669" rx="0" ry="0" fill="var(--_group-fill)" stroke="var(--_node-stroke)" stroke-width="1" />
+  <rect x="174.2526666666666" y="810.8" width="472.1748333333333" height="28" rx="0" ry="0" fill="var(--_group-hdr)" stroke="var(--_node-stroke)" stroke-width="1" />
+  <text x="186.2526666666666" y="824.8" font-size="12" font-weight="600" fill="var(--_text-sec)" dy="4.199999999999999">三大进阶控制原语</text>
+</g>
+<g class="subgraph" data-id="Runtime_Separation" data-label="状态与环境解耦">
+  <rect x="263.55574999999993" y="40" width="294.027" height="110.9" rx="0" ry="0" fill="var(--_group-fill)" stroke="var(--_node-stroke)" stroke-width="1" />
+  <rect x="263.55574999999993" y="40" width="294.027" height="28" rx="0" ry="0" fill="var(--_group-hdr)" stroke="var(--_node-stroke)" stroke-width="1" />
+  <text x="275.55574999999993" y="54" font-size="12" font-weight="600" fill="var(--_text-sec)" dy="4.199999999999999">状态与环境解耦</text>
+</g>
+<polyline class="edge" data-from="NodeA" data-to="NodeB" data-style="solid" data-arrow-start="false" data-arrow-end="true" data-label="普通边 add_edge" points="370.07949999999994,360.1 370.07949999999994,372.1 446.14199999999994,372.1 446.14199999999994,651.6" fill="none" stroke="var(--_line)" stroke-width="1" marker-end="url(#arrowhead)" />
+<polyline class="edge" data-from="NodeB" data-to="AtomicRoute" data-style="solid" data-arrow-start="false" data-arrow-end="true" data-label="Command 原语" points="433.7541666666666,688.5 433.7541666666666,724.5 306.3559583333332,724.5 306.3559583333332,792.8 288.8929166666666,792.8 288.8929166666666,854.8" fill="none" stroke="var(--_line)" stroke-width="1" marker-end="url(#arrowhead)" />
+<polyline class="edge" data-from="NodeB" data-to="Worker1" data-style="solid" data-arrow-start="false" data-arrow-end="true" data-label="Send 原语: 动态扇出" points="470.9176666666666,688.5 470.9176666666666,724.5 458.8459999999999,724.5 458.8459999999999,792.8 459.4744999999999,792.8 459.4745,928.2344999999999" fill="none" stroke="var(--_line)" stroke-width="1" marker-end="url(#arrowhead)" />
+<polyline class="edge" data-from="NodeB" data-to="Worker2" data-style="solid" data-arrow-start="false" data-arrow-end="true" data-label="Send 原语: 动态扇出" points="508.0811666666666,688.5 508.0811666666666,724.5 582.664,724.5 582.664,792.8 582.0355,792.8 582.0355,928.2344999999999" fill="none" stroke="var(--_line)" stroke-width="1" marker-end="url(#arrowhead)" />
+<polyline class="edge" data-from="Context" data-to="NodeA" data-style="dotted" data-arrow-start="false" data-arrow-end="true" data-label="runtime.context" points="366.89808333333326,134.9 366.89808333333326,192.9 349.58849999999995,192.9 349.58849999999995,323.20000000000005" fill="none" stroke="var(--_line)" stroke-width="1" stroke-dasharray="4 4" marker-end="url(#arrowhead)" />
+<polyline class="edge" data-from="Context" data-to="NodeB" data-style="dotted" data-arrow-start="false" data-arrow-end="true" data-label="runtime.context" points="454.2404166666666,134.9 454.2404166666666,261.20000000000005 531.6419999999999,261.20000000000005 531.6419999999999,639.6 495.69333333333327,639.6 495.69333333333327,651.6" fill="none" stroke="var(--_line)" stroke-width="1" stroke-dasharray="4 4" marker-end="url(#arrowhead)" />
+<polyline class="edge" data-from="NodeA" data-to="Retry" data-style="dotted" data-arrow-start="false" data-arrow-end="true" data-label="健壮性保障" points="349.58849999999995,360.1 349.58849999999995,476.40000000000003" fill="none" stroke="var(--_line)" stroke-width="1" stroke-dasharray="4 4" marker-end="url(#arrowhead)" />
+<polyline class="edge" data-from="NodeA" data-to="Cache" data-style="dotted" data-arrow-start="false" data-arrow-end="true" data-label="算力节约" points="329.09749999999997,360.1 329.09749999999997,372.1 145.51749999999998,372.1 145.51749999999998,476.40000000000003" fill="none" stroke="var(--_line)" stroke-width="1" stroke-dasharray="4 4" marker-end="url(#arrowhead)" />
+<polyline class="edge" data-from="AtomicRoute" data-to="NodeC" data-style="solid" data-arrow-start="false" data-arrow-end="true" data-label="goto" points="258.26474999999994,1007.9408333333333 258.26474999999994,1050.569 232.34616666666662,1050.569 232.34616666666662,1171.469" fill="none" stroke="var(--_line)" stroke-width="1" marker-end="url(#arrowhead)" />
+<polyline class="edge" data-from="AtomicRoute" data-to="END" data-style="solid" data-arrow-start="false" data-arrow-end="true" data-label="goto" points="319.5210833333333,1007.9408333333332 319.5210833333333,1050.569 345.43966666666665,1050.569 345.43966666666665,1171.469" fill="none" stroke="var(--_line)" stroke-width="1" marker-end="url(#arrowhead)" />
+<polyline class="edge" data-from="Worker1" data-to="ReducerNode" data-style="solid" data-arrow-start="false" data-arrow-end="true" points="459.4744999999999,965.1344999999999 459.4744999999999,1025.8517499999998 520.7549999999999,1025.8517499999998 520.7549999999999,1086.569" fill="none" stroke="var(--_line)" stroke-width="1" marker-end="url(#arrowhead)" />
+<polyline class="edge" data-from="Worker2" data-to="ReducerNode" data-style="solid" data-arrow-start="false" data-arrow-end="true" points="582.0355,965.1344999999999 582.0355,1025.8517499999998 520.7549999999999,1025.8517499999998 520.7549999999999,1086.569" fill="none" stroke="var(--_line)" stroke-width="1" marker-end="url(#arrowhead)" />
+<g class="edge-label" data-from="NodeA" data-to="NodeB" data-label="普通边 add_edge">
+  <rect x="394.64199999999994" y="578.3000000000001" width="102.59200000000001" height="30.3" rx="2" ry="2" fill="var(--bg)" stroke="var(--_inner-stroke)" stroke-width="1" />
+  <text x="445.93799999999993" y="593.45" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-sec)" dy="3.8499999999999996">普通边 add_edge</text>
+</g>
+<g class="edge-label" data-from="NodeB" data-to="AtomicRoute" data-label="Command 原语">
+  <rect x="261.8559583333332" y="731.5" width="88.33600000000001" height="30.3" rx="2" ry="2" fill="var(--bg)" stroke="var(--_inner-stroke)" stroke-width="1" />
+  <text x="306.0239583333332" y="746.65" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-sec)" dy="3.8499999999999996">Command 原语</text>
+</g>
+<g class="edge-label" data-from="NodeB" data-to="Worker1" data-label="Send 原语: 动态扇出">
+  <rect x="398.8459999999999" y="731.5" width="119.81800000000004" height="30.3" rx="2" ry="2" fill="var(--bg)" stroke="var(--_inner-stroke)" stroke-width="1" />
+  <text x="458.7549999999999" y="746.65" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-sec)" dy="3.8499999999999996">Send 原语: 动态扇出</text>
+</g>
+<g class="edge-label" data-from="NodeB" data-to="Worker2" data-label="Send 原语: 动态扇出">
+  <rect x="522.664" y="731.5" width="119.81800000000004" height="30.3" rx="2" ry="2" fill="var(--bg)" stroke="var(--_inner-stroke)" stroke-width="1" />
+  <text x="582.573" y="746.65" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-sec)" dy="3.8499999999999996">Send 原语: 动态扇出</text>
+</g>
+<g class="edge-label" data-from="Context" data-to="NodeA" data-label="runtime.context">
+  <rect x="305.08849999999995" y="199.9" width="88.93" height="30.3" rx="2" ry="2" fill="var(--bg)" stroke="var(--_inner-stroke)" stroke-width="1" />
+  <text x="349.5535" y="215.05" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-sec)" dy="3.8499999999999996">runtime.context</text>
+</g>
+<g class="edge-label" data-from="Context" data-to="NodeB" data-label="runtime.context">
+  <rect x="487.14199999999994" y="546" width="88.93" height="30.3" rx="2" ry="2" fill="var(--bg)" stroke="var(--_inner-stroke)" stroke-width="1" />
+  <text x="531.607" y="561.15" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-sec)" dy="3.8499999999999996">runtime.context</text>
+</g>
+<g class="edge-label" data-from="NodeA" data-to="Retry" data-label="健壮性保障">
+  <rect x="310.58849999999995" y="403.1000000000001" width="77.05000000000001" height="30.3" rx="2" ry="2" fill="var(--bg)" stroke="var(--_inner-stroke)" stroke-width="1" />
+  <text x="349.11349999999993" y="418.25000000000006" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-sec)" dy="3.8499999999999996">健壮性保障</text>
+</g>
+<g class="edge-label" data-from="NodeA" data-to="Cache" data-label="算力节约">
+  <rect x="112.51749999999998" y="403.1000000000001" width="65.17" height="30.3" rx="2" ry="2" fill="var(--bg)" stroke="var(--_inner-stroke)" stroke-width="1" />
+  <text x="145.1025" y="418.25000000000006" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-sec)" dy="3.8499999999999996">算力节约</text>
+</g>
+<g class="edge-label" data-from="AtomicRoute" data-to="NodeC" data-label="goto">
+  <rect x="213.34616666666662" y="1089.869" width="37.846000000000004" height="30.3" rx="2" ry="2" fill="var(--bg)" stroke="var(--_inner-stroke)" stroke-width="1" />
+  <text x="232.26916666666662" y="1105.019" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-sec)" dy="3.8499999999999996">goto</text>
+</g>
+<g class="edge-label" data-from="AtomicRoute" data-to="END" data-label="goto">
+  <rect x="326.43966666666665" y="1089.869" width="37.846000000000004" height="30.3" rx="2" ry="2" fill="var(--bg)" stroke="var(--_inner-stroke)" stroke-width="1" />
+  <text x="345.36266666666666" y="1105.019" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-sec)" dy="3.8499999999999996">goto</text>
+</g>
+<g class="node" data-id="START" data-label="START" data-shape="circle">
+  <circle cx="184.55574999999993" cy="174.20000000000002" r="51" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+  <text x="184.55574999999993" y="174.20000000000002" text-anchor="middle" font-size="13" font-weight="500" fill="var(--_text)" dy="4.55">START</text>
+</g>
+<g class="node" data-id="NodeB" data-label="Node B: 决策中心" data-shape="rectangle">
+  <rect x="396.5906666666666" y="651.6" width="148.654" height="36.900000000000006" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+  <text x="470.9176666666666" y="670.0500000000001" text-anchor="middle" font-size="13" font-weight="500" fill="var(--_text)" dy="4.55">Node B: 决策中心</text>
+</g>
+<g class="node" data-id="NodeA" data-label="NodeA" data-shape="rectangle">
+  <rect x="308.6065" y="323.20000000000005" width="81.964" height="36.900000000000006" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+  <text x="349.58849999999995" y="341.65000000000003" text-anchor="middle" font-size="13" font-weight="500" fill="var(--_text)" dy="4.55">NodeA</text>
+</g>
+<g class="node" data-id="Retry" data-label="RetryPolicy 重试策略" data-shape="rectangle">
+  <rect x="263.03499999999997" y="476.40000000000003" width="173.107" height="36.900000000000006" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+  <text x="349.58849999999995" y="494.85" text-anchor="middle" font-size="13" font-weight="500" fill="var(--_text)" dy="4.55">RetryPolicy 重试策略</text>
+</g>
+<g class="node" data-id="Cache" data-label="CachePolicy 节点缓存" data-shape="rectangle">
+  <rect x="56" y="476.40000000000003" width="179.03499999999997" height="36.900000000000006" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+  <text x="145.51749999999998" y="494.85" text-anchor="middle" font-size="13" font-weight="500" fill="var(--_text)" dy="4.55">CachePolicy 节点缓存</text>
+</g>
+<g class="node" data-id="AtomicRoute" data-label="Command 内部跳转" data-shape="diamond">
+  <polygon points="288.8929166666666,854.8 380.7774166666666,946.6845 288.8929166666666,1038.569 197.00841666666662,946.6845" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+  <text x="288.8929166666666" y="946.6845" text-anchor="middle" font-size="13" font-weight="500" fill="var(--_text)" dy="4.55">Command 内部跳转</text>
+</g>
+<g class="node" data-id="NodeC" data-label="Node C" data-shape="rectangle">
+  <rect x="190.2526666666666" y="1171.469" width="84.18700000000001" height="36.900000000000006" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+  <text x="232.34616666666662" y="1189.919" text-anchor="middle" font-size="13" font-weight="500" fill="var(--_text)" dy="4.55">Node C</text>
+</g>
+<g class="node" data-id="END" data-label="END" data-shape="circle">
+  <circle cx="345.43966666666665" cy="1214.469" r="43" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+  <text x="345.43966666666665" y="1214.469" text-anchor="middle" font-size="13" font-weight="500" fill="var(--_text)" dy="4.55">END</text>
+</g>
+<g class="node" data-id="Worker1" data-label="Worker 1" data-shape="rectangle">
+  <rect x="413.30549999999994" y="928.2344999999999" width="92.338" height="36.900000000000006" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+  <text x="459.4744999999999" y="946.6845" text-anchor="middle" font-size="13" font-weight="500" fill="var(--_text)" dy="4.55">Worker 1</text>
+</g>
+<g class="node" data-id="Worker2" data-label="Worker 2" data-shape="rectangle">
+  <rect x="533.6434999999999" y="928.2344999999999" width="96.78399999999999" height="36.900000000000006" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+  <text x="582.0355" y="946.6845" text-anchor="middle" font-size="13" font-weight="500" fill="var(--_text)" dy="4.55">Worker 2</text>
+</g>
+<g class="node" data-id="ReducerNode" data-label="Reduce 汇聚节点" data-shape="rectangle">
+  <rect x="446.0574999999999" y="1086.569" width="149.39499999999998" height="36.900000000000006" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+  <text x="520.7549999999999" y="1105.019" text-anchor="middle" font-size="13" font-weight="500" fill="var(--_text)" dy="4.55">Reduce 汇聚节点</text>
+</g>
+<g class="node" data-id="Context" data-label="Runtime Context: 静态凭据/数据库池" data-shape="cylinder">
+  <rect x="279.55574999999993" y="91" width="262.027" height="36.900000000000006" fill="var(--_node-fill)" stroke="none" />
+  <line x1="279.55574999999993" y1="91" x2="279.55574999999993" y2="127.9" stroke="var(--_node-stroke)" stroke-width="0.75" />
+  <line x1="541.5827499999999" y1="91" x2="541.5827499999999" y2="127.9" stroke="var(--_node-stroke)" stroke-width="0.75" />
+  <ellipse cx="410.5692499999999" cy="127.9" rx="131.0135" ry="7" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+  <ellipse cx="410.5692499999999" cy="91" rx="131.0135" ry="7" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+  <text x="410.5692499999999" y="109.45" text-anchor="middle" font-size="13" font-weight="500" fill="var(--_text)" dy="4.55">Runtime Context: 静态凭据/数据库池</text>
+</g>
+</svg>

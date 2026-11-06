@@ -1,0 +1,15 @@
+import{_ as a,o as s,c as r,e as n,a as e}from"./chunks/framework.zCPgfX_8.js";const h=JSON.parse('{"title":"ExceptionHandler 学习笔记","description":"ExceptionHandler 学习笔记的完整学习记录，保留原笔记中的方法、示例与代码。","frontmatter":{"title":"ExceptionHandler 学习笔记","date":"2026-11-06","description":"ExceptionHandler 学习笔记的完整学习记录，保留原笔记中的方法、示例与代码。","category":"Java 后端","folder":"java/campusforge","order":2,"sourceNote":"CampusForge/ExceptionHandler相关.md","imported":true},"headers":[{"level":4,"title":"总体流程:","slug":"总体流程","link":"#总体流程","children":[]}],"relativePath":"posts/java/campusforge/exception-handlers.md","filePath":"posts/java/campusforge/exception-handlers.md"}'),t={name:"posts/java/campusforge/exception-handlers.md"};function p(o,l,i,c,d,u){return s(),r("div",null,[...l[0]||(l[0]=[n("h1",{id:"exceptionhandler-学习笔记",tabindex:"-1"},[e("ExceptionHandler 学习笔记 "),n("a",{class:"header-anchor",href:"#exceptionhandler-学习笔记","aria-label":'Permalink to "ExceptionHandler 学习笔记"'},"​")],-1),n("div",null,[n("h4",{id:"总体流程",tabindex:"-1"},[e("总体流程: "),n("a",{class:"header-anchor",href:"#总体流程","aria-label":'Permalink to "总体流程:"'},"​")]),n("div",{class:"language-"},[n("button",{title:"Copy Code",class:"copy"}),n("span",{class:"lang"}),n("pre",{class:"shiki github-light vp-code",tabindex:"0","v-pre":""},[n("code",null,[n("span",{class:"line"},[n("span",null,"注册请求")]),e(`
+`),n("span",{class:"line"},[n("span",null,"    ↓")]),e(`
+`),n("span",{class:"line"},[n("span",null,"AuthController.register()")]),e(`
+`),n("span",{class:"line"},[n("span",null,"    ↓")]),e(`
+`),n("span",{class:"line"},[n("span",null,"UserService.register()")]),e(`
+`),n("span",{class:"line"},[n("span",null,"    ↓")]),e(`
+`),n("span",{class:"line"},[n("span",null,"throw UsernameAlreadyExistsException")]),e(`
+`),n("span",{class:"line"},[n("span",null,"    ↓")]),e(`
+`),n("span",{class:"line"},[n("span",null,"异常传回 Spring MVC")]),e(`
+`),n("span",{class:"line"},[n("span",null,"    ↓")]),e(`
+`),n("span",{class:"line"},[n("span",null,"找到匹配的 @ExceptionHandler")]),e(`
+`),n("span",{class:"line"},[n("span",null,"    ↓")]),e(`
+`),n("span",{class:"line"},[n("span",null,"调用 handleUsernameConflict()")]),e(`
+`),n("span",{class:"line"},[n("span",null,"    ↓")]),e(`
+`),n("span",{class:"line"},[n("span",null,"返回 HTTP 409 + JSON")])])])]),n("p",null,[n("em",null,"作用"),e(": 对于 Controller 中 throw 的错误, 通过 "),n("sup",null,[n("a",{href:"#note-1"},"[1]")]),e("@RestControllerAdvice 注解的 ExceptionHandler 中寻找 "),n("sup",null,[n("a",{href:"#note-2"},"[2]")]),e("@ExceptionHandler 注解对应的异常方法, 返回指定格式内容(状态码, 错误内容)给客户端")]),n("blockquote",null,[n("p",null,[n("span",{id:"note-1"},"[1]"),e(" 该注解有两个关键作用: - 让 Spring 通过组件扫描发现并管理这个类 - 把里面的异常处理方法应用到 Controller 请求处理, 并将返回内容写入响应体")])]),n("blockquote",null,[n("p",null,[n("span",{id:"note-2"},"[2]"),e(),n("em",null,"举例"),e(": @ExceptionHandler(UsernameAlreadyExistsException.class)")])])],-1),n("hr",null,null,-1),n("p",null,[n("em",null,"原笔记：CampusForge/ExceptionHandler相关.md。迁移时保留原文结构，完成链接、附件和已识别问题的适配。")],-1)])])}const m=a(t,[["render",p]]);export{h as __pageData,m as default};

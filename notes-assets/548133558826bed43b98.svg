@@ -1,0 +1,95 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 805.8034999999999 457.45" width="805.8034999999999" height="457.45" style="--bg:#FFFFFF;--fg:#1E293B;--line:#64748B;--muted:#475569;--surface:#F8FAFC;--border:#CBD5E1;background:var(--bg)">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap');
+  text { font-family: 'Inter', system-ui, sans-serif; }
+  svg {
+    /* Derived from --bg and --fg (overridable via --line, --accent, etc.) */
+    --_text:          var(--fg);
+    --_text-sec:      var(--muted, color-mix(in srgb, var(--fg) 60%, var(--bg)));
+    --_text-muted:    var(--muted, color-mix(in srgb, var(--fg) 40%, var(--bg)));
+    --_text-faint:    color-mix(in srgb, var(--fg) 25%, var(--bg));
+    --_line:          var(--line, color-mix(in srgb, var(--fg) 50%, var(--bg)));
+    --_arrow:         var(--accent, color-mix(in srgb, var(--fg) 85%, var(--bg)));
+    --_node-fill:     var(--surface, color-mix(in srgb, var(--fg) 3%, var(--bg)));
+    --_node-stroke:   var(--border, color-mix(in srgb, var(--fg) 20%, var(--bg)));
+    --_group-fill:    var(--bg);
+    --_group-hdr:     color-mix(in srgb, var(--fg) 5%, var(--bg));
+    --_inner-stroke:  color-mix(in srgb, var(--fg) 12%, var(--bg));
+    --_key-badge:     color-mix(in srgb, var(--fg) 10%, var(--bg));
+  }
+</style>
+<defs>
+  <marker id="seq-arrow" markerWidth="8" markerHeight="5" refX="8" refY="2.5" orient="auto-start-reverse">
+    <polygon points="0 0, 8 2.5, 0 5" fill="var(--_arrow)" />
+  </marker>
+  <marker id="seq-arrow-open" markerWidth="8" markerHeight="5" refX="8" refY="2.5" orient="auto-start-reverse">
+    <polyline points="0 0, 8 2.5, 0 5" fill="none" stroke="var(--_arrow)" stroke-width="1" />
+  </marker>
+</defs>
+<line class="lifeline" data-actor="User" x1="111.729" y1="92.45" x2="111.729" y2="427.45" stroke="var(--_line)" stroke-width="0.75" stroke-dasharray="6 4" />
+<line class="lifeline" data-actor="Graph" x1="433.58899999999994" y1="70" x2="433.58899999999994" y2="427.45" stroke="var(--_line)" stroke-width="0.75" stroke-dasharray="6 4" />
+<line class="lifeline" data-actor="CP" x1="702.8829999999999" y1="70" x2="702.8829999999999" y2="427.45" stroke="var(--_line)" stroke-width="0.75" stroke-dasharray="6 4" />
+<g class="message" data-from="Graph" data-to="Graph" data-label="运行至包含 interrupt() 的节点" data-line-style="solid" data-arrow-head="filled" data-self="true" data-step="1">
+  <polyline points="433.58899999999994,112.45 463.58899999999994,112.45 463.58899999999994,132.45 433.58899999999994,132.45" fill="none" stroke="var(--_line)" stroke-width="1" marker-end="url(#seq-arrow)" />
+  <rect x="468.58899999999994" y="114.3" width="168" height="16.3" rx="2" ry="2" fill="var(--bg)" />
+  <text x="471.58899999999994" y="122.45" font-size="11" text-anchor="start" font-weight="400" fill="var(--_text-muted)" dy="3.8499999999999996">运行至包含 interrupt() 的节点</text>
+  <circle class="sequence-number" cx="433.58899999999994" cy="112.45" r="9" fill="var(--_arrow)" stroke="var(--bg)" stroke-width="1" />
+  <text x="433.58899999999994" y="112.45" class="sequence-number-label" font-size="10" text-anchor="middle" font-weight="600" fill="var(--bg)" dy="3.5">1</text>
+</g>
+<g class="message" data-from="Graph" data-to="CP" data-label="将当前现场序列化并固化存盘" data-line-style="solid" data-arrow-head="filled" data-self="false" data-step="2">
+  <line x1="433.58899999999994" y1="182.45" x2="702.8829999999999" y2="182.45" stroke="var(--_line)" stroke-width="1" marker-end="url(#seq-arrow)" />
+  <rect x="479.2359999999999" y="164.29999999999998" width="178" height="16.3" rx="2" ry="2" fill="var(--bg)" />
+  <text x="568.2359999999999" y="172.45" font-size="11" text-anchor="middle" font-weight="400" fill="var(--_text-muted)" dy="3.8499999999999996">将当前现场序列化并固化存盘</text>
+  <circle class="sequence-number" cx="433.58899999999994" cy="182.45" r="9" fill="var(--_arrow)" stroke="var(--bg)" stroke-width="1" />
+  <text x="433.58899999999994" y="182.45" class="sequence-number-label" font-size="10" text-anchor="middle" font-weight="600" fill="var(--bg)" dy="3.5">2</text>
+</g>
+<g class="message" data-from="Graph" data-to="User" data-label="挂起执行，吐出审核数据 (Interrupt Event)" data-line-style="dashed" data-arrow-head="filled" data-self="false" data-step="3">
+  <line x1="433.58899999999994" y1="222.45" x2="111.729" y2="222.45" stroke="var(--_line)" stroke-width="1" stroke-dasharray="6 4" marker-end="url(#seq-arrow)" />
+  <rect x="154.159" y="204.29999999999998" width="237" height="16.3" rx="2" ry="2" fill="var(--bg)" />
+  <text x="272.659" y="212.45" font-size="11" text-anchor="middle" font-weight="400" fill="var(--_text-muted)" dy="3.8499999999999996">挂起执行，吐出审核数据 (Interrupt Event)</text>
+  <circle class="sequence-number" cx="433.58899999999994" cy="222.45" r="9" fill="var(--_arrow)" stroke="var(--bg)" stroke-width="1" />
+  <text x="433.58899999999994" y="222.45" class="sequence-number-label" font-size="10" text-anchor="middle" font-weight="600" fill="var(--bg)" dy="3.5">3</text>
+</g>
+<g class="message" data-from="User" data-to="Graph" data-label="invoke(Command(resume={&quot;approved&quot;: True, &quot;amount&quot;: 80}))" data-line-style="solid" data-arrow-head="filled" data-self="false" data-step="4">
+  <line x1="111.729" y1="277.45" x2="433.58899999999994" y2="277.45" stroke="var(--_line)" stroke-width="1" marker-end="url(#seq-arrow)" />
+  <rect x="116.65899999999999" y="259.3" width="312" height="16.3" rx="2" ry="2" fill="var(--bg)" />
+  <text x="272.659" y="267.45" font-size="11" text-anchor="middle" font-weight="400" fill="var(--_text-muted)" dy="3.8499999999999996">invoke(Command(resume={&quot;approved&quot;: True, &quot;amount&quot;: 80}))</text>
+  <circle class="sequence-number" cx="111.729" cy="277.45" r="9" fill="var(--_arrow)" stroke="var(--bg)" stroke-width="1" />
+  <text x="111.729" y="277.45" class="sequence-number-label" font-size="10" text-anchor="middle" font-weight="600" fill="var(--bg)" dy="3.5">4</text>
+</g>
+<g class="message" data-from="Graph" data-to="CP" data-label="读取原 thread_id 的执行现场" data-line-style="solid" data-arrow-head="filled" data-self="false" data-step="5">
+  <line x1="433.58899999999994" y1="317.45" x2="702.8829999999999" y2="317.45" stroke="var(--_line)" stroke-width="1" marker-end="url(#seq-arrow)" />
+  <rect x="485.2359999999999" y="299.3" width="166" height="16.3" rx="2" ry="2" fill="var(--bg)" />
+  <text x="568.2359999999999" y="307.45" font-size="11" text-anchor="middle" font-weight="400" fill="var(--_text-muted)" dy="3.8499999999999996">读取原 thread_id 的执行现场</text>
+  <circle class="sequence-number" cx="433.58899999999994" cy="317.45" r="9" fill="var(--_arrow)" stroke="var(--bg)" stroke-width="1" />
+  <text x="433.58899999999994" y="317.45" class="sequence-number-label" font-size="10" text-anchor="middle" font-weight="600" fill="var(--bg)" dy="3.5">5</text>
+</g>
+<g class="message" data-from="Graph" data-to="Graph" data-label="恢复执行并在节点内返回 resume 结果" data-line-style="solid" data-arrow-head="filled" data-self="true" data-step="6">
+  <polyline points="433.58899999999994,357.45 463.58899999999994,357.45 463.58899999999994,377.45 433.58899999999994,377.45" fill="none" stroke="var(--_line)" stroke-width="1" marker-end="url(#seq-arrow)" />
+  <rect x="468.58899999999994" y="359.3" width="221" height="16.3" rx="2" ry="2" fill="var(--bg)" />
+  <text x="471.58899999999994" y="367.45" font-size="11" text-anchor="start" font-weight="400" fill="var(--_text-muted)" dy="3.8499999999999996">恢复执行并在节点内返回 resume 结果</text>
+  <circle class="sequence-number" cx="433.58899999999994" cy="357.45" r="9" fill="var(--_arrow)" stroke="var(--bg)" stroke-width="1" />
+  <text x="433.58899999999994" y="357.45" class="sequence-number-label" font-size="10" text-anchor="middle" font-weight="600" fill="var(--bg)" dy="3.5">6</text>
+</g>
+<g class="note" data-position="over" data-actors="User">
+  <polygon points="30,230.45 187.458,230.45 193.458,236.45 193.458,253.45 30,253.45" fill="var(--bg)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+  <polygon points="187.458,230.45 193.458,236.45 187.458,236.45" fill="var(--_inner-stroke)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+  <text x="111.729" y="241.95" font-size="11" text-anchor="middle" font-weight="400" fill="var(--_text-muted)" dy="3.8499999999999996">人工核对转账金额与账号...</text>
+</g>
+<g class="actor" data-id="User" data-label="用户 / 业务审核员" data-type="actor">
+  <g transform="translate(93.729,32) scale(1.5)">
+    <path d="M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" fill="none" stroke="var(--_line)" stroke-width="0.6666666666666666" />
+    <path d="M15 10C15 11.6569 13.6569 13 12 13C10.3431 13 9 11.6569 9 10C9 8.34315 10.3431 7 12 7C13.6569 7 15 8.34315 15 10Z" fill="none" stroke="var(--_line)" stroke-width="0.6666666666666666" />
+    <path d="M5.62842 18.3563C7.08963 17.0398 9.39997 16 12 16C14.6 16 16.9104 17.0398 18.3716 18.3563" fill="none" stroke="var(--_line)" stroke-width="0.6666666666666666" />
+  </g>
+  <text x="111.729" y="84" font-size="13" text-anchor="middle" font-weight="500" fill="var(--_text)" dy="4.55">用户 / 业务审核员</text>
+</g>
+<g class="actor" data-id="Graph" data-label="LangGraph 引擎" data-type="participant">
+  <rect x="366.59649999999993" y="30" width="133.985" height="40" rx="4" ry="4" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="1" />
+  <text x="433.58899999999994" y="50" font-size="13" text-anchor="middle" font-weight="500" fill="var(--_text)" dy="4.55">LangGraph 引擎</text>
+</g>
+<g class="actor" data-id="CP" data-label="Checkpointer 存储" data-type="participant">
+  <rect x="629.9624999999999" y="30" width="145.841" height="40" rx="4" ry="4" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="1" />
+  <text x="702.8829999999999" y="50" font-size="13" text-anchor="middle" font-weight="500" fill="var(--_text)" dy="4.55">Checkpointer 存储</text>
+</g>
+</svg>
