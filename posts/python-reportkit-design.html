@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="zh-CN" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>把 Python 数据处理脚本拆清楚：读取、计算与输出各司其职 · Yany_uki</title>
+    <meta name="description" content="从 reportkit 学习笔记提炼单向依赖、数据模型和纯计算与 I/O 分离，用一段可运行的 CSV 汇总代码说明每一层该负责什么。">
+    <meta name="generator" content="VitePress v1.6.4">
+    <link rel="preload stylesheet" href="/blog-pages/assets/style.CVacsoCn.css" as="style">
+    <link rel="preload stylesheet" href="/blog-pages/vp-icons.css" as="style">
+    
+    <script type="module" src="/blog-pages/assets/app.CNt6wUAC.js"></script>
+    <link rel="modulepreload" href="/blog-pages/assets/chunks/theme.C_SWRlXp.js">
+    <link rel="modulepreload" href="/blog-pages/assets/chunks/framework.B8AKDgcm.js">
+    <link rel="modulepreload" href="/blog-pages/assets/posts_python-reportkit-design.md.Crw2ZWuL.lean.js">
+    <link rel="icon" type="image/svg+xml" href="/blog-pages/favicon.svg">
+    <meta name="theme-color" content="#245edb">
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Yany_uki">
+    <meta property="og:title" content="Yany_uki 的 WinXP 个人博客">
+    <meta property="og:description" content="以代码为剑，奔赴热爱 —— 计科学生的学习手账 · 兼职二次元居民">
+    <meta property="og:image" content="https://cdn.jsdelivr.net/gh/yany-code/blog-images@main/images/yuki.jpg">
+    <meta property="og:url" content="https://yany-code.github.io/blog-pages/">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Yany_uki 的 WinXP 个人博客">
+    <meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/yany-code/blog-images@main/images/yuki.jpg">
+    <script id="check-mac-os">document.documentElement.classList.toggle("mac",/Mac|iPhone|iPod|iPad/i.test(navigator.platform));</script>
+    <link rel="canonical" href="https://yany-code.github.io/blog-pages/posts/python-reportkit-design.html">
+  </head>
+  <body>
+    <div id="app"><div class="xp-root"><div style="position:absolute;width:0;height:0;overflow:hidden;" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" style="position:absolute;width:0;height:0;overflow:hidden"><defs>
+  <linearGradient id="ic-cpu-scr" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#cfe9ff"/><stop offset=".5" stop-color="#6cb1f7"/><stop offset="1" stop-color="#1e5fc4"/>
+  </linearGradient>
+  <linearGradient id="ic-fld-b" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#ffe9a8"/><stop offset="1" stop-color="#f3b93f"/>
+  </linearGradient>
+  <radialGradient id="ic-anm-p" cx=".5" cy=".35" r=".9">
+    <stop offset="0" stop-color="#ffd6e4"/><stop offset="1" stop-color="#ff7fab"/>
+  </radialGradient>
+  <radialGradient id="ic-glb-b" cx=".38" cy=".3" r="1">
+    <stop offset="0" stop-color="#9fd4ff"/><stop offset=".55" stop-color="#2f7fe0"/><stop offset="1" stop-color="#0b3f8f"/>
+  </radialGradient>
+  <linearGradient id="ic-rcy-b" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0" stop-color="#cfd8e6"/><stop offset=".5" stop-color="#eef3fa"/><stop offset="1" stop-color="#b9c6d8"/>
+  </linearGradient>
+  <radialGradient id="ic-hlp-b" cx=".4" cy=".3" r=".9">
+    <stop offset="0" stop-color="#9fd4ff"/><stop offset="1" stop-color="#1e5fc4"/>
+  </radialGradient>
+  <radialGradient id="ic-mus-d" cx=".38" cy=".32" r="1">
+    <stop offset="0" stop-color="#8fb4ec"/><stop offset=".6" stop-color="#2e6fd8"/><stop offset="1" stop-color="#0b3f8f"/>
+  </radialGradient></defs><symbol id="ic-computer" viewBox="0 0 48 48">
+    <rect x="5" y="6" width="38" height="27" rx="3" fill="#e3ecf6" stroke="#5b7aa8" stroke-width="1.5"/>
+    <rect x="8.5" y="9.5" width="31" height="20" rx="1.5" fill="url(#ic-cpu-scr)"/>
+    <path d="M23 10c-4 6-4 14 0 19" stroke="#ffffff" stroke-opacity=".5" fill="none" stroke-width="1.2"/>
+    <path d="M18 33h12l2 6H16z" fill="#cdd9ea" stroke="#5b7aa8"/>
+    <rect x="11" y="39" width="26" height="3.5" rx="1.75" fill="#e3ecf6" stroke="#5b7aa8"/></symbol><symbol id="ic-folder" viewBox="0 0 48 48">
+    <path d="M4 11a3 3 0 0 1 3-3h11.2l4 4.2H41a3 3 0 0 1 3 3V37a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3z" fill="#dfa93a" stroke="#b98a20" stroke-width="1.2"/>
+    <path d="M4 17.5h40V37a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3z" fill="url(#ic-fld-b)" stroke="#c99b2e" stroke-width="1"/>
+    <path d="M6 15.5h36v2H6z" fill="#fff" opacity=".45"/></symbol><symbol id="ic-anime" viewBox="0 0 48 48">
+    <ellipse cx="24" cy="11" rx="6.5" ry="9" fill="url(#ic-anm-p)" stroke="#e86a99" stroke-width="1"/>
+    <ellipse cx="24" cy="37" rx="6.5" ry="9" fill="url(#ic-anm-p)" stroke="#e86a99" stroke-width="1"/>
+    <ellipse cx="11" cy="19" rx="6.5" ry="9" fill="url(#ic-anm-p)" stroke="#e86a99" stroke-width="1" transform="rotate(-72 11 19)"/>
+    <ellipse cx="37" cy="19" rx="6.5" ry="9" fill="url(#ic-anm-p)" stroke="#e86a99" stroke-width="1" transform="rotate(72 37 19)"/>
+    <ellipse cx="15" cy="33" rx="6.5" ry="9" fill="url(#ic-anm-p)" stroke="#e86a99" stroke-width="1" transform="rotate(-144 15 33)"/>
+    <ellipse cx="33" cy="33" rx="6.5" ry="9" fill="url(#ic-anm-p)" stroke="#e86a99" stroke-width="1" transform="rotate(144 33 33)"/>
+    <circle cx="24" cy="24" r="5.5" fill="#ffe37a" stroke="#e8b53f" stroke-width="1"/></symbol><symbol id="ic-globe" viewBox="0 0 48 48">
+    <circle cx="24" cy="24" r="19" fill="url(#ic-glb-b)" stroke="#0a3a86"/>
+    <path d="M12 15c5-3 11-3.5 16-2 3 1 5 3 4 5.5-1.4 3.4-6 2.4-8 5-1.8 2.4.4 5.5-2 8-1.6 1.7-4.6 1-6-1.5-2.6-4.7-6.5-9.5-4-15z" fill="#59c14b" opacity=".9"/>
+    <path d="M31 27c2.5-.8 5 .5 5.5 3 .4 2.4-2 4.6-4.5 4-2.4-.6-3.5-6.2-1-7z" fill="#59c14b" opacity=".9"/>
+    <ellipse cx="24" cy="24" rx="19" ry="7.5" fill="none" stroke="#dff0ff" stroke-opacity=".55" stroke-width="1.2"/>
+    <ellipse cx="24" cy="24" rx="8" ry="19" fill="none" stroke="#dff0ff" stroke-opacity=".4" stroke-width="1"/></symbol><symbol id="ic-recycle" viewBox="0 0 48 48">
+    <path d="M13 15h22l-2 26a3 3 0 0 1-3 2.8H18A3 3 0 0 1 15 41z" fill="url(#ic-rcy-b)" stroke="#7d8ea6" stroke-width="1.3"/>
+    <rect x="10.5" y="10" width="27" height="5" rx="2.5" fill="#dbe4ef" stroke="#7d8ea6" stroke-width="1.2"/>
+    <rect x="19.5" y="6.5" width="9" height="3.5" rx="1.75" fill="#dbe4ef" stroke="#7d8ea6"/>
+    <path d="M24 21.5l3.4 5.8h-2.1l2.5 4.3-4.9-.1 2.2-4.2h-2.1z" fill="#3fa63f" opacity=".9"/>
+    <path d="M17.5 27.5l3.4 5.8-1.8 1-2.6-4.4-1.1 1.8z" fill="#3fa63f" opacity=".9"/>
+    <path d="M30.5 27.5l-2.2 3.7 2.3 3.9 2-3.5z" fill="#3fa63f" opacity=".9"/></symbol><symbol id="ic-flag" viewBox="0 0 48 48">
+    <g transform="translate(2 1)">
+      <path d="M22 8c-3.8-2.8-8.5-3.6-14-2.4V21c5.5-1.2 10.2-.4 14 2.4z" fill="#f65314"/>
+      <path d="M22 8c4-2.4 8.7-3 14-1.8V19.6c-5.3-1.2-10-.6-14 1.8z" fill="#7cbb00"/>
+      <path d="M22 23.4c-3.8-2.8-8.5-3.6-14-2.4v13.4c5.5-1.2 10.2-.4 14 2.4z" fill="#00a1f1"/>
+      <path d="M22 23.4c4-2.4 8.7-3 14-1.8v13.2c-5.3-1.2-10-.6-14 1.8z" fill="#ffbb00"/>
+    </g></symbol><symbol id="ic-volume" viewBox="0 0 48 48">
+    <path d="M8 19h8l10-8v26l-10-8H8z" fill="#fff" stroke="#0a3a86" stroke-width="1.4" stroke-linejoin="round"/>
+    <path d="M31 17c3.5 3.8 3.5 10.2 0 14M36 12c6 6.6 6 17.4 0 24" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round"/></symbol><symbol id="ic-logoff" viewBox="0 0 48 48">
+    <rect x="8" y="8" width="20" height="32" rx="3" fill="#ffce54" stroke="#c99118" stroke-width="1.4"/>
+    <circle cx="15" cy="20" r="4.4" fill="#fff" stroke="#c99118"/>
+    <path d="M9 34c1-5 10-5 11 0" fill="#fff" stroke="#c99118"/>
+    <path d="M28 24h11m0 0-4.5-4.5M39 24l-4.5 4.5" stroke="#fff" stroke-width="3.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></symbol><symbol id="ic-shutdown" viewBox="0 0 48 48">
+    <circle cx="24" cy="24" r="15.5" fill="none" stroke="#ff5a3c" stroke-width="4.5"/>
+    <rect x="21.7" y="5" width="4.6" height="15" rx="2.3" fill="#ff5a3c"/></symbol><symbol id="ic-help" viewBox="0 0 48 48">
+    <circle cx="24" cy="24" r="18" fill="url(#ic-hlp-b)" stroke="#0a3a86"/>
+    <text x="24" y="31.5" text-anchor="middle" font-family="Tahoma" font-size="20" font-weight="bold" fill="#fff">?</text></symbol><symbol id="ic-run" viewBox="0 0 48 48">
+    <rect x="7" y="10" width="34" height="28" rx="3" fill="#fff" stroke="#5b7aa8" stroke-width="1.6"/>
+    <rect x="7" y="10" width="34" height="7" rx="3" fill="#3f8cf3" stroke="#5b7aa8" stroke-width="1.2"/>
+    <path d="M15 27l8 6 11-12" stroke="#3fa63f" stroke-width="3.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></symbol><symbol id="ic-doc" viewBox="0 0 48 48">
+    <path d="M12 5h16l9 9v29H12z" fill="#fff" stroke="#5b7aa8" stroke-width="1.5"/>
+    <path d="M28 5l9 9h-9z" fill="#cfe0f4" stroke="#5b7aa8" stroke-width="1.2"/>
+    <path d="M17 20h14M17 25h14M17 30h9" stroke="#8aa4c8" stroke-width="1.8" stroke-linecap="round"/></symbol><symbol id="ic-user" viewBox="0 0 48 48">
+    <circle cx="24" cy="17" r="8" fill="#ffe0b3" stroke="#caa06a" stroke-width="1.4"/>
+    <path d="M8 42c2-10 9-13 16-13s14 3 16 13z" fill="#7ea4e0" stroke="#4a6fa5" stroke-width="1.4"/></symbol><symbol id="ic-mines" viewBox="0 0 48 48">
+    <path d="M24 8v7M24 37v7M6 26h7M35 26h7M11.3 13.3l5 5M36.7 13.3l-5 5M11.3 38.7l5-5M36.7 38.7l-5-5" stroke="#14161b" stroke-width="3.2" stroke-linecap="round"/>
+    <circle cx="24" cy="26" r="12.5" fill="#3a3f4a" stroke="#14161b" stroke-width="1.5"/>
+    <circle cx="19.5" cy="21.5" r="3.4" fill="#8b93a5" opacity=".85"/></symbol><symbol id="ic-music" viewBox="0 0 48 48">
+    <circle cx="18" cy="32" r="13" fill="url(#ic-mus-d)" stroke="#0a3a86" stroke-width="1.4"/>
+    <circle cx="18" cy="32" r="7.5" fill="#e8eef8" stroke="#5b7aa8" stroke-width="1"/>
+    <circle cx="18" cy="32" r="2.2" fill="#5b7aa8"/>
+    <path d="M32 34V12.5c0-1.6 1-2.6 2.4-2.9L39 8.5c1.8-.4 3 .6 3 2.4v3.2c0 1.7-.9 2.7-2.6 3.1L34 18.6V34c0 3.4-2.9 6-6.5 6S21 37.4 21 34s2.9-6 6.5-6c1.9 0 3.5.7 4.5 1.8z" fill="#ff9dbd" stroke="#e86a99" stroke-width="1.3" transform="translate(1 -2) scale(.92)"/>
+    <path d="M34.5 12.5l5.5-1.3v3l-5.5 1.3z" fill="#ffd6e4"/></symbol></svg></div><div class="xp-desktop" style=""><canvas class="xp-sakura" aria-hidden="true"></canvas><nav class="xp-desk-icons" aria-label="桌面图标"><!--[--><button type="button" class="xp-desk-icon" aria-label="我的电脑"><svg class="xp-ic ico" viewbox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#ic-computer"></use></svg><span class="lbl">我的电脑</span></button><button type="button" class="xp-desk-icon" aria-label="技术笔记"><svg class="xp-ic ico" viewbox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#ic-folder"></use></svg><span class="lbl">技术笔记</span></button><button type="button" class="xp-desk-icon" aria-label="二次元专区"><svg class="xp-ic ico" viewbox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#ic-anime"></use></svg><span class="lbl">二次元专区</span></button><button type="button" class="xp-desk-icon" aria-label="扫雷"><svg class="xp-ic ico" viewbox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#ic-mines"></use></svg><span class="lbl">扫雷</span></button><button type="button" class="xp-desk-icon" aria-label="我的音乐"><svg class="xp-ic ico" viewbox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#ic-music"></use></svg><span class="lbl">我的音乐</span></button><button type="button" class="xp-desk-icon" aria-label="Internet（在新窗口打开 GitHub 主页）"><svg class="xp-ic ico" viewbox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#ic-globe"></use></svg><span class="lbl">Internet</span></button><button type="button" class="xp-desk-icon" aria-label="回收站"><svg class="xp-ic ico" viewbox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#ic-recycle"></use></svg><span class="lbl">回收站</span></button><!--]--></nav><!--[--><section class="xp-window pop-in win-main centered" style="z-index:100;" aria-label="窗口：把 Python 数据处理脚本拆清楚：读取、计算与输出各司其职"><header class="xp-titlebar"><svg class="xp-ic tb-ico" viewbox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#ic-doc"></use></svg><span class="tb-title">把 Python 数据处理脚本拆清楚：读取、计算与输出各司其职</span><span class="xp-tb-btns"><button type="button" title="最小化" aria-label="最小化窗口"><svg viewBox="0 0 12 12"><path d="M2.5 8.5h7" stroke="#fff" stroke-width="1.8" stroke-linecap="round"></path></svg></button><button type="button" title="最大化" aria-label="最大化窗口"><svg viewBox="0 0 12 12"><rect x="2.5" y="2.5" width="7" height="7" fill="none" stroke="#fff" stroke-width="1.5"></rect></svg></button><button type="button" class="close" title="关闭" aria-label="最小化主窗口"><svg viewBox="0 0 12 12"><path d="M2.5 2.5l7 7M9.5 2.5l-7 7" stroke="#fff" stroke-width="1.7" stroke-linecap="round"></path></svg></button></span></header><div class="xp-window-body"><!--[--><div class="xp-doc"><div style="position:relative;"><div><h1 id="把-python-数据处理脚本拆清楚读取计算与输出各司其职" tabindex="-1">把 Python 数据处理脚本拆清楚：读取、计算与输出各司其职 <a class="header-anchor" href="#把-python-数据处理脚本拆清楚读取计算与输出各司其职" aria-label="Permalink to &quot;把 Python 数据处理脚本拆清楚：读取、计算与输出各司其职&quot;">​</a></h1><p>一个读取 CSV、计算分类金额、生成报告的小脚本，最初可以全部写在一个函数里。但当输入增加 JSON、输出增加 Markdown，或者需要给读取过程加日志时，同一段代码就容易同时承担好几种职责。</p><p>整理 reportkit 学习笔记时，值得保留的是一种拆分方法：先区分数据从哪里来、怎样计算、如何呈现，再决定是否拆成多个文件。下面用一个缩小的例子说明，代码只依赖 Python 标准库，适用于 Python 3.12。</p><h2 id="先划分职责再划分文件" tabindex="-1">先划分职责，再划分文件 <a class="header-anchor" href="#先划分职责再划分文件" aria-label="Permalink to &quot;先划分职责，再划分文件&quot;">​</a></h2><p>数据处理可以沿着一个方向流动：</p><div class="language-text"><button title="Copy Code" class="copy"></button><span class="lang">text</span><pre class="shiki github-light vp-code" tabindex="0"><code><span class="line"><span>CSV 文件 → 读取与校验 → Sale 对象 → 分类汇总 → JSON 文本 → 写入文件</span></span></code></pre></div><table tabindex="0"><thead><tr><th>部分</th><th>输入与输出</th><th>负责的事情</th></tr></thead><tbody><tr><td>读取层</td><td>路径 → 数据对象</td><td>打开文件、解析 CSV、检查必需字段</td></tr><tr><td>计算层</td><td>数据对象 → 汇总结果</td><td>分组、累加；不打开文件、不打印</td></tr><tr><td>渲染层</td><td>汇总结果 → 字符串</td><td>决定字段、金额格式和 JSON 排版</td></tr><tr><td>入口</td><td>文件路径与各层函数</td><td>决定调用顺序，以及结果最终写到哪里</td></tr></tbody></table><p>这时，换输入格式主要改读取层，换报告格式主要改渲染层。入口可以同时打印和保存同一份文本，不需要让计算函数知道终端或文件的存在。</p><h2 id="一个可以独立运行的例子" tabindex="-1">一个可以独立运行的例子 <a class="header-anchor" href="#一个可以独立运行的例子" aria-label="Permalink to &quot;一个可以独立运行的例子&quot;">​</a></h2><p>先把以下内容保存为 <code>sales.csv</code>：</p><div class="language-csv"><button title="Copy Code" class="copy"></button><span class="lang">csv</span><pre class="shiki github-light vp-code" tabindex="0"><code><span class="line"><span style="color:#24292E;">category,</span><span style="color:#D73A49;">quantity,</span><span style="color:#6F42C1;">unit_price</span></span>
+<span class="line"><span style="color:#24292E;">键盘,</span><span style="color:#D73A49;">2,</span><span style="color:#6F42C1;">99.90</span></span>
+<span class="line"><span style="color:#24292E;">鼠标,</span><span style="color:#D73A49;">1,</span><span style="color:#6F42C1;">49.50</span></span>
+<span class="line"><span style="color:#24292E;">键盘,</span><span style="color:#D73A49;">1,</span><span style="color:#6F42C1;">10.00</span></span></code></pre></div><p>再将下面的代码保存为同一目录下的 <code>report.py</code>：</p><div class="language-python"><button title="Copy Code" class="copy"></button><span class="lang">python</span><pre class="shiki github-light vp-code" tabindex="0"><code><span class="line"><span style="color:#D73A49;">import</span><span style="color:#24292E;"> csv</span></span>
+<span class="line"><span style="color:#D73A49;">import</span><span style="color:#24292E;"> json</span></span>
+<span class="line"><span style="color:#D73A49;">from</span><span style="color:#24292E;"> collections.abc </span><span style="color:#D73A49;">import</span><span style="color:#24292E;"> Iterable</span></span>
+<span class="line"><span style="color:#D73A49;">from</span><span style="color:#24292E;"> dataclasses </span><span style="color:#D73A49;">import</span><span style="color:#24292E;"> dataclass</span></span>
+<span class="line"><span style="color:#D73A49;">from</span><span style="color:#24292E;"> decimal </span><span style="color:#D73A49;">import</span><span style="color:#24292E;"> Decimal, InvalidOperation</span></span>
+<span class="line"><span style="color:#D73A49;">from</span><span style="color:#24292E;"> pathlib </span><span style="color:#D73A49;">import</span><span style="color:#24292E;"> Path</span></span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6F42C1;">@dataclass</span><span style="color:#24292E;">(</span><span style="color:#E36209;">frozen</span><span style="color:#D73A49;">=</span><span style="color:#005CC5;">True</span><span style="color:#24292E;">)</span></span>
+<span class="line"><span style="color:#D73A49;">class</span><span style="color:#6F42C1;"> Sale</span><span style="color:#24292E;">:</span></span>
+<span class="line"><span style="color:#24292E;">    category: </span><span style="color:#005CC5;">str</span></span>
+<span class="line"><span style="color:#24292E;">    quantity: </span><span style="color:#005CC5;">int</span></span>
+<span class="line"><span style="color:#24292E;">    unit_price: Decimal</span></span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line"><span style="color:#D73A49;">def</span><span style="color:#6F42C1;"> read_sales</span><span style="color:#24292E;">(path: Path) -&gt; list[Sale]:</span></span>
+<span class="line"><span style="color:#24292E;">    records </span><span style="color:#D73A49;">=</span><span style="color:#24292E;"> []</span></span>
+<span class="line"><span style="color:#D73A49;">    with</span><span style="color:#24292E;"> path.open(</span><span style="color:#E36209;">encoding</span><span style="color:#D73A49;">=</span><span style="color:#032F62;">&quot;utf-8-sig&quot;</span><span style="color:#24292E;">, </span><span style="color:#E36209;">newline</span><span style="color:#D73A49;">=</span><span style="color:#032F62;">&quot;&quot;</span><span style="color:#24292E;">) </span><span style="color:#D73A49;">as</span><span style="color:#E36209;"> file</span><span style="color:#24292E;">:</span></span>
+<span class="line"><span style="color:#24292E;">        reader </span><span style="color:#D73A49;">=</span><span style="color:#24292E;"> csv.DictReader(</span><span style="color:#E36209;">file</span><span style="color:#24292E;">)</span></span>
+<span class="line"><span style="color:#24292E;">        required </span><span style="color:#D73A49;">=</span><span style="color:#24292E;"> {</span><span style="color:#032F62;">&quot;category&quot;</span><span style="color:#24292E;">, </span><span style="color:#032F62;">&quot;quantity&quot;</span><span style="color:#24292E;">, </span><span style="color:#032F62;">&quot;unit_price&quot;</span><span style="color:#24292E;">}</span></span>
+<span class="line"><span style="color:#D73A49;">        if</span><span style="color:#D73A49;"> not</span><span style="color:#24292E;"> required.issubset(reader.fieldnames </span><span style="color:#D73A49;">or</span><span style="color:#24292E;"> []):</span></span>
+<span class="line"><span style="color:#D73A49;">            raise</span><span style="color:#005CC5;"> ValueError</span><span style="color:#24292E;">(</span><span style="color:#032F62;">&quot;CSV 缺少必需字段&quot;</span><span style="color:#24292E;">)</span></span>
+<span class="line"><span style="color:#D73A49;">        for</span><span style="color:#24292E;"> row </span><span style="color:#D73A49;">in</span><span style="color:#24292E;"> reader:</span></span>
+<span class="line"><span style="color:#D73A49;">            try</span><span style="color:#24292E;">:</span></span>
+<span class="line"><span style="color:#24292E;">                category </span><span style="color:#D73A49;">=</span><span style="color:#24292E;"> (row.get(</span><span style="color:#032F62;">&quot;category&quot;</span><span style="color:#24292E;">) </span><span style="color:#D73A49;">or</span><span style="color:#032F62;"> &quot;&quot;</span><span style="color:#24292E;">).strip()</span></span>
+<span class="line"><span style="color:#24292E;">                quantity </span><span style="color:#D73A49;">=</span><span style="color:#005CC5;"> int</span><span style="color:#24292E;">(row.get(</span><span style="color:#032F62;">&quot;quantity&quot;</span><span style="color:#24292E;">) </span><span style="color:#D73A49;">or</span><span style="color:#032F62;"> &quot;&quot;</span><span style="color:#24292E;">)</span></span>
+<span class="line"><span style="color:#24292E;">                price </span><span style="color:#D73A49;">=</span><span style="color:#24292E;"> Decimal(row.get(</span><span style="color:#032F62;">&quot;unit_price&quot;</span><span style="color:#24292E;">) </span><span style="color:#D73A49;">or</span><span style="color:#032F62;"> &quot;&quot;</span><span style="color:#24292E;">)</span></span>
+<span class="line"><span style="color:#D73A49;">                if</span><span style="color:#D73A49;"> not</span><span style="color:#24292E;"> category </span><span style="color:#D73A49;">or</span><span style="color:#24292E;"> quantity </span><span style="color:#D73A49;">&lt;=</span><span style="color:#005CC5;"> 0</span><span style="color:#24292E;">:</span></span>
+<span class="line"><span style="color:#D73A49;">                    raise</span><span style="color:#005CC5;"> ValueError</span><span style="color:#24292E;">(</span><span style="color:#032F62;">&quot;类别不能为空，数量必须为正整数&quot;</span><span style="color:#24292E;">)</span></span>
+<span class="line"><span style="color:#D73A49;">                if</span><span style="color:#D73A49;"> not</span><span style="color:#24292E;"> price.is_finite() </span><span style="color:#D73A49;">or</span><span style="color:#24292E;"> price </span><span style="color:#D73A49;">&lt;</span><span style="color:#005CC5;"> 0</span><span style="color:#24292E;">:</span></span>
+<span class="line"><span style="color:#D73A49;">                    raise</span><span style="color:#005CC5;"> ValueError</span><span style="color:#24292E;">(</span><span style="color:#032F62;">&quot;单价必须是有限的非负数&quot;</span><span style="color:#24292E;">)</span></span>
+<span class="line"><span style="color:#D73A49;">            except</span><span style="color:#24292E;"> (</span><span style="color:#005CC5;">ValueError</span><span style="color:#24292E;">, InvalidOperation) </span><span style="color:#D73A49;">as</span><span style="color:#24292E;"> error:</span></span>
+<span class="line"><span style="color:#D73A49;">                raise</span><span style="color:#005CC5;"> ValueError</span><span style="color:#24292E;">(</span><span style="color:#D73A49;">f</span><span style="color:#032F62;">&quot;CSV 第 </span><span style="color:#005CC5;">{</span><span style="color:#24292E;">reader.line_num</span><span style="color:#005CC5;">}</span><span style="color:#032F62;"> 行无效&quot;</span><span style="color:#24292E;">) </span><span style="color:#D73A49;">from</span><span style="color:#24292E;"> error</span></span>
+<span class="line"><span style="color:#24292E;">            records.append(Sale(category, quantity, price))</span></span>
+<span class="line"><span style="color:#D73A49;">    return</span><span style="color:#24292E;"> records</span></span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line"><span style="color:#D73A49;">def</span><span style="color:#6F42C1;"> summarize</span><span style="color:#24292E;">(records: Iterable[Sale]) -&gt; dict[</span><span style="color:#005CC5;">str</span><span style="color:#24292E;">, Decimal]:</span></span>
+<span class="line"><span style="color:#24292E;">    totals: dict[</span><span style="color:#005CC5;">str</span><span style="color:#24292E;">, Decimal] </span><span style="color:#D73A49;">=</span><span style="color:#24292E;"> {}</span></span>
+<span class="line"><span style="color:#D73A49;">    for</span><span style="color:#24292E;"> record </span><span style="color:#D73A49;">in</span><span style="color:#24292E;"> records:</span></span>
+<span class="line"><span style="color:#24292E;">        amount </span><span style="color:#D73A49;">=</span><span style="color:#24292E;"> record.quantity </span><span style="color:#D73A49;">*</span><span style="color:#24292E;"> record.unit_price</span></span>
+<span class="line"><span style="color:#24292E;">        totals[record.category] </span><span style="color:#D73A49;">=</span><span style="color:#24292E;"> totals.get(record.category, Decimal(</span><span style="color:#032F62;">&quot;0&quot;</span><span style="color:#24292E;">)) </span><span style="color:#D73A49;">+</span><span style="color:#24292E;"> amount</span></span>
+<span class="line"><span style="color:#D73A49;">    return</span><span style="color:#24292E;"> totals</span></span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line"><span style="color:#D73A49;">def</span><span style="color:#6F42C1;"> render_json</span><span style="color:#24292E;">(totals: dict[</span><span style="color:#005CC5;">str</span><span style="color:#24292E;">, Decimal]) -&gt; </span><span style="color:#005CC5;">str</span><span style="color:#24292E;">:</span></span>
+<span class="line"><span style="color:#24292E;">    data </span><span style="color:#D73A49;">=</span><span style="color:#24292E;"> {key: </span><span style="color:#005CC5;">format</span><span style="color:#24292E;">(value, </span><span style="color:#032F62;">&quot;.2f&quot;</span><span style="color:#24292E;">) </span><span style="color:#D73A49;">for</span><span style="color:#24292E;"> key, value </span><span style="color:#D73A49;">in</span><span style="color:#005CC5;"> sorted</span><span style="color:#24292E;">(totals.items())}</span></span>
+<span class="line"><span style="color:#D73A49;">    return</span><span style="color:#24292E;"> json.dumps(data, </span><span style="color:#E36209;">ensure_ascii</span><span style="color:#D73A49;">=</span><span style="color:#005CC5;">False</span><span style="color:#24292E;">, </span><span style="color:#E36209;">indent</span><span style="color:#D73A49;">=</span><span style="color:#005CC5;">2</span><span style="color:#24292E;">)</span></span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line"><span style="color:#D73A49;">if</span><span style="color:#005CC5;"> __name__</span><span style="color:#D73A49;"> ==</span><span style="color:#032F62;"> &quot;__main__&quot;</span><span style="color:#24292E;">:</span></span>
+<span class="line"><span style="color:#24292E;">    text </span><span style="color:#D73A49;">=</span><span style="color:#24292E;"> render_json(summarize(read_sales(Path(</span><span style="color:#032F62;">&quot;sales.csv&quot;</span><span style="color:#24292E;">))))</span></span>
+<span class="line"><span style="color:#24292E;">    Path(</span><span style="color:#032F62;">&quot;report.json&quot;</span><span style="color:#24292E;">).write_text(text, </span><span style="color:#E36209;">encoding</span><span style="color:#D73A49;">=</span><span style="color:#032F62;">&quot;utf-8&quot;</span><span style="color:#24292E;">)</span></span>
+<span class="line"><span style="color:#005CC5;">    print</span><span style="color:#24292E;">(text)</span></span></code></pre></div><p>在该目录运行 <code>python report.py</code>，终端和生成的 <code>report.json</code> 都会得到：</p><div class="language-json"><button title="Copy Code" class="copy"></button><span class="lang">json</span><pre class="shiki github-light vp-code" tabindex="0"><code><span class="line"><span style="color:#24292E;">{</span></span>
+<span class="line"><span style="color:#005CC5;">  &quot;键盘&quot;</span><span style="color:#24292E;">: </span><span style="color:#032F62;">&quot;209.80&quot;</span><span style="color:#24292E;">,</span></span>
+<span class="line"><span style="color:#005CC5;">  &quot;鼠标&quot;</span><span style="color:#24292E;">: </span><span style="color:#032F62;">&quot;49.50&quot;</span></span>
+<span class="line"><span style="color:#24292E;">}</span></span></code></pre></div><p>CSV 读到的是字符串，因此类型转换放在读取边界完成。这里从十进制字符串构造 <code>Decimal</code>，金额在渲染时才格式化为两位小数的字符串。CSV 文件使用 <code>newline=&quot;&quot;</code> 打开，将换行处理交给 <code>csv</code> 模块；<code>utf-8-sig</code> 则兼容带 UTF-8 BOM 的文件。</p><h2 id="为什么要有数据对象" tabindex="-1">为什么要有数据对象 <a class="header-anchor" href="#为什么要有数据对象" aria-label="Permalink to &quot;为什么要有数据对象&quot;">​</a></h2><p>如果整个流程都传裸字典，每个函数都需要记住 <code>&quot;category&quot;</code>、<code>&quot;quantity&quot;</code> 等键名。<code>Sale</code> 把这些约定集中到一处，编辑器也更容易提供属性补全。</p><p>但类型注解并不等于运行时校验：<code>Sale</code> 的构造函数不会自动保证数量为正，校验仍要在读取层明确实现。<code>frozen=True</code> 限制的是字段重新赋值，字段里若放可变容器，也不会自动变成深度不可变对象。本例只使用字符串、整数和 <code>Decimal</code>，边界比较简单。</p><h2 id="把计算与副作用分开测试才更直接" tabindex="-1">把计算与副作用分开，测试才更直接 <a class="header-anchor" href="#把计算与副作用分开测试才更直接" aria-label="Permalink to &quot;把计算与副作用分开，测试才更直接&quot;">​</a></h2><p><code>summarize()</code> 不关心 CSV 文件，所以测试计算不需要先创建文件。把函数定义导入后，可以直接验证：</p><div class="language-python"><button title="Copy Code" class="copy"></button><span class="lang">python</span><pre class="shiki github-light vp-code" tabindex="0"><code><span class="line"><span style="color:#D73A49;">from</span><span style="color:#24292E;"> decimal </span><span style="color:#D73A49;">import</span><span style="color:#24292E;"> Decimal</span></span>
+<span class="line"><span style="color:#D73A49;">from</span><span style="color:#24292E;"> report </span><span style="color:#D73A49;">import</span><span style="color:#24292E;"> Sale, render_json, summarize</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#24292E;">records </span><span style="color:#D73A49;">=</span><span style="color:#24292E;"> [Sale(</span><span style="color:#032F62;">&quot;键盘&quot;</span><span style="color:#24292E;">, </span><span style="color:#005CC5;">2</span><span style="color:#24292E;">, Decimal(</span><span style="color:#032F62;">&quot;99.90&quot;</span><span style="color:#24292E;">))]</span></span>
+<span class="line"><span style="color:#D73A49;">assert</span><span style="color:#24292E;"> summarize(records) </span><span style="color:#D73A49;">==</span><span style="color:#24292E;"> {</span><span style="color:#032F62;">&quot;键盘&quot;</span><span style="color:#24292E;">: Decimal(</span><span style="color:#032F62;">&quot;199.80&quot;</span><span style="color:#24292E;">)}</span></span>
+<span class="line"><span style="color:#D73A49;">assert</span><span style="color:#24292E;"> summarize([]) </span><span style="color:#D73A49;">==</span><span style="color:#24292E;"> {}</span></span>
+<span class="line"><span style="color:#D73A49;">assert</span><span style="color:#032F62;"> &#39;&quot;199.80&quot;&#39;</span><span style="color:#D73A49;"> in</span><span style="color:#24292E;"> render_json(summarize(records))</span></span></code></pre></div><p>同样，<code>render_json()</code> 只返回文本。它没有悄悄写文件，因此既能用于终端预览，也能被网页接口复用。真正的磁盘写入集中在入口，调用者可以看见副作用发生的位置。</p><p>示例把记录放进列表，方便观察每一层的结果。处理大文件时，可以把读取层改成生成器；<code>summarize()</code> 已接受 <code>Iterable</code>，不必跟着改变。但生成器中的解析错误会在消费时才出现，因此入口需要同时覆盖读取与汇总阶段的异常，而不能只围住“创建迭代器”的那一次调用。</p><h2 id="错误策略也应当有边界" tabindex="-1">错误策略也应当有边界 <a class="header-anchor" href="#错误策略也应当有边界" aria-label="Permalink to &quot;错误策略也应当有边界&quot;">​</a></h2><p>这个示例遇到非法记录会停止，并报告所在行；缺失文件则保留 <code>FileNotFoundError</code>，没有统一包装成含义模糊的“处理失败”。</p><p>原笔记还有“跳过脏数据并记录原因”的模式，它适合允许部分成功的导入任务，但不该成为所有项目的默认规则。如果需要支持，应返回合法记录与跳过记录两份结果，让调用者知道报告缺了什么。参数本身不合法时，则应在读取大文件之前尽早报错。</p><p>项目变大后，可以按职责拆成 <code>models.py</code>、<code>readers.py</code>、<code>aggregate.py</code>、<code>writers.py</code> 和入口脚本。让数据模型不依赖读写层，读写层不反过来调用入口，依赖方向就更容易保持清楚。小脚本先保留在一个文件里也完全可以，关键是函数之间的职责已经分开。</p><h2 id="笔记来源与参考" tabindex="-1">笔记来源与参考 <a class="header-anchor" href="#笔记来源与参考" aria-label="Permalink to &quot;笔记来源与参考&quot;">​</a></h2><p>本文整理自个人 Obsidian 笔记中的 reportkit 项目 README，并结合 Python 语法学习计划重写为独立示例；不需要原项目源码即可运行。</p><ul><li><a href="https://docs.python.org/3.12/library/csv.html" target="_blank" rel="noreferrer">Python 3.12：csv 模块</a></li><li><a href="https://docs.python.org/3.12/library/dataclasses.html" target="_blank" rel="noreferrer">Python 3.12：dataclasses 模块</a></li></ul></div></div></div><!--]--></div></section><!--]--><div class="xp-taskbar" role="toolbar" aria-label="任务栏"><button class="xp-start" aria-label="开始菜单"><svg class="xp-ic" viewbox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#ic-flag"></use></svg>开始 </button><div class="xp-quick"><!--[--><button type="button" title="Internet · GitHub" aria-label="Internet · GitHub"><svg class="xp-ic" viewbox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#ic-globe"></use></svg></button><button type="button" title="技术笔记" aria-label="技术笔记"><svg class="xp-ic" viewbox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#ic-folder"></use></svg></button><button type="button" title="二次元专区" aria-label="二次元专区"><svg class="xp-ic" viewbox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#ic-anime"></use></svg></button><!--]--></div><div class="xp-tasks"><!--[--><button type="button" class="active xp-task-btn" title="把 Python 数据处理脚本拆清楚：读取、计算与输出各司其职" aria-label="切换到窗口：把 Python 数据处理脚本拆清楚：读取、计算与输出各司其职"><svg class="xp-ic" viewbox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#ic-computer"></use></svg><span class="t">把 Python 数据处理脚本拆清楚：读取、计算与输出各司其职</span></button><!--]--></div><div class="xp-tray"><button type="button" class="tray-btn" title="樱花飘落 开/关" aria-label="樱花飘落特效 开关" aria-pressed="true"><svg class="xp-ic" viewbox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#ic-anime"></use></svg></button><button type="button" class="tray-btn" title="音量（假装可以调）" aria-label="音量（装饰玩梗按钮，无实际功能）" aria-pressed="false"><svg class="xp-ic" viewbox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#ic-volume"></use></svg></button><span class="sep"></span><span class="xp-clock" title=""></span></div><!----></div></div><!----></div></div>
+    <script>window.__VP_HASH_MAP__=JSON.parse("{\"404.md\":\"DSU6C4TI\",\"about.md\":\"B9RP1x8f\",\"anime.md\":\"D8VaZlPa\",\"index.md\":\"DrPf42XZ\",\"posts_first-post.md\":\"5RUZx9jM\",\"posts_index.md\":\"DCuCvvAp\",\"posts_kafka-outbox-notifications.md\":\"BUDu-3ls\",\"posts_leetcode-linked-list-cycle.md\":\"Bc1cJ0xN\",\"posts_leetcode-lru-cache.md\":\"KgxbmGqC\",\"posts_leetcode-monotonic-deque.md\":\"CShTEKZm\",\"posts_leetcode-prefix-sum.md\":\"MlaViq19\",\"posts_mcp-tools-rag-agent.md\":\"BL0xMsBO\",\"posts_python-reportkit-design.md\":\"Crw2ZWuL\",\"posts_rag-retrieval-pipeline.md\":\"9vUo9rvn\",\"posts_spring-security-session.md\":\"CL0O2k4x\",\"posts_spring-transaction-boundaries.md\":\"CjcBxxEd\"}");window.__VP_SITE_DATA__=JSON.parse("{\"lang\":\"zh-CN\",\"dir\":\"ltr\",\"title\":\"Yany_uki\",\"titleTemplate\":\":title · Yany_uki\",\"description\":\"Yany_uki 的 WinXP 风格个人博客 · 以代码为剑，奔赴热爱\",\"base\":\"/blog-pages/\",\"head\":[],\"router\":{\"prefetchLinks\":true},\"appearance\":false,\"themeConfig\":{},\"locales\":{},\"scrollOffset\":134,\"cleanUrls\":false}");</script>
+    
+  </body>
+</html>

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="zh-CN" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Spring 事务边界：回滚、传播与代理自调用 · Yany_uki</title>
+    <meta name="description" content="从连续写入两张表出发，理解 Spring 事务代理如何决定提交与回滚，以及 REQUIRED、REQUIRES_NEW 和自调用的边界。">
+    <meta name="generator" content="VitePress v1.6.4">
+    <link rel="preload stylesheet" href="/blog-pages/assets/style.CVacsoCn.css" as="style">
+    <link rel="preload stylesheet" href="/blog-pages/vp-icons.css" as="style">
+    
+    <script type="module" src="/blog-pages/assets/app.CNt6wUAC.js"></script>
+    <link rel="modulepreload" href="/blog-pages/assets/chunks/theme.C_SWRlXp.js">
+    <link rel="modulepreload" href="/blog-pages/assets/chunks/framework.B8AKDgcm.js">
+    <link rel="modulepreload" href="/blog-pages/assets/posts_spring-transaction-boundaries.md.CjcBxxEd.lean.js">
+    <link rel="icon" type="image/svg+xml" href="/blog-pages/favicon.svg">
+    <meta name="theme-color" content="#245edb">
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Yany_uki">
+    <meta property="og:title" content="Yany_uki 的 WinXP 个人博客">
+    <meta property="og:description" content="以代码为剑，奔赴热爱 —— 计科学生的学习手账 · 兼职二次元居民">
+    <meta property="og:image" content="https://cdn.jsdelivr.net/gh/yany-code/blog-images@main/images/yuki.jpg">
+    <meta property="og:url" content="https://yany-code.github.io/blog-pages/">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Yany_uki 的 WinXP 个人博客">
+    <meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/yany-code/blog-images@main/images/yuki.jpg">
+    <script id="check-mac-os">document.documentElement.classList.toggle("mac",/Mac|iPhone|iPod|iPad/i.test(navigator.platform));</script>
+    <link rel="canonical" href="https://yany-code.github.io/blog-pages/posts/spring-transaction-boundaries.html">
+  </head>
+  <body>
+    <div id="app"><div class="xp-root"><div style="position:absolute;width:0;height:0;overflow:hidden;" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" style="position:absolute;width:0;height:0;overflow:hidden"><defs>
+  <linearGradient id="ic-cpu-scr" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#cfe9ff"/><stop offset=".5" stop-color="#6cb1f7"/><stop offset="1" stop-color="#1e5fc4"/>
+  </linearGradient>
+  <linearGradient id="ic-fld-b" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#ffe9a8"/><stop offset="1" stop-color="#f3b93f"/>
+  </linearGradient>
+  <radialGradient id="ic-anm-p" cx=".5" cy=".35" r=".9">
+    <stop offset="0" stop-color="#ffd6e4"/><stop offset="1" stop-color="#ff7fab"/>
+  </radialGradient>
+  <radialGradient id="ic-glb-b" cx=".38" cy=".3" r="1">
+    <stop offset="0" stop-color="#9fd4ff"/><stop offset=".55" stop-color="#2f7fe0"/><stop offset="1" stop-color="#0b3f8f"/>
+  </radialGradient>
+  <linearGradient id="ic-rcy-b" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0" stop-color="#cfd8e6"/><stop offset=".5" stop-color="#eef3fa"/><stop offset="1" stop-color="#b9c6d8"/>
+  </linearGradient>
+  <radialGradient id="ic-hlp-b" cx=".4" cy=".3" r=".9">
+    <stop offset="0" stop-color="#9fd4ff"/><stop offset="1" stop-color="#1e5fc4"/>
+  </radialGradient>
+  <radialGradient id="ic-mus-d" cx=".38" cy=".32" r="1">
+    <stop offset="0" stop-color="#8fb4ec"/><stop offset=".6" stop-color="#2e6fd8"/><stop offset="1" stop-color="#0b3f8f"/>
+  </radialGradient></defs><symbol id="ic-computer" viewBox="0 0 48 48">
+    <rect x="5" y="6" width="38" height="27" rx="3" fill="#e3ecf6" stroke="#5b7aa8" stroke-width="1.5"/>
+    <rect x="8.5" y="9.5" width="31" height="20" rx="1.5" fill="url(#ic-cpu-scr)"/>
+    <path d="M23 10c-4 6-4 14 0 19" stroke="#ffffff" stroke-opacity=".5" fill="none" stroke-width="1.2"/>
+    <path d="M18 33h12l2 6H16z" fill="#cdd9ea" stroke="#5b7aa8"/>
+    <rect x="11" y="39" width="26" height="3.5" rx="1.75" fill="#e3ecf6" stroke="#5b7aa8"/></symbol><symbol id="ic-folder" viewBox="0 0 48 48">
+    <path d="M4 11a3 3 0 0 1 3-3h11.2l4 4.2H41a3 3 0 0 1 3 3V37a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3z" fill="#dfa93a" stroke="#b98a20" stroke-width="1.2"/>
+    <path d="M4 17.5h40V37a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3z" fill="url(#ic-fld-b)" stroke="#c99b2e" stroke-width="1"/>
+    <path d="M6 15.5h36v2H6z" fill="#fff" opacity=".45"/></symbol><symbol id="ic-anime" viewBox="0 0 48 48">
+    <ellipse cx="24" cy="11" rx="6.5" ry="9" fill="url(#ic-anm-p)" stroke="#e86a99" stroke-width="1"/>
+    <ellipse cx="24" cy="37" rx="6.5" ry="9" fill="url(#ic-anm-p)" stroke="#e86a99" stroke-width="1"/>
+    <ellipse cx="11" cy="19" rx="6.5" ry="9" fill="url(#ic-anm-p)" stroke="#e86a99" stroke-width="1" transform="rotate(-72 11 19)"/>
+    <ellipse cx="37" cy="19" rx="6.5" ry="9" fill="url(#ic-anm-p)" stroke="#e86a99" stroke-width="1" transform="rotate(72 37 19)"/>
+    <ellipse cx="15" cy="33" rx="6.5" ry="9" fill="url(#ic-anm-p)" stroke="#e86a99" stroke-width="1" transform="rotate(-144 15 33)"/>
+    <ellipse cx="33" cy="33" rx="6.5" ry="9" fill="url(#ic-anm-p)" stroke="#e86a99" stroke-width="1" transform="rotate(144 33 33)"/>
+    <circle cx="24" cy="24" r="5.5" fill="#ffe37a" stroke="#e8b53f" stroke-width="1"/></symbol><symbol id="ic-globe" viewBox="0 0 48 48">
+    <circle cx="24" cy="24" r="19" fill="url(#ic-glb-b)" stroke="#0a3a86"/>
+    <path d="M12 15c5-3 11-3.5 16-2 3 1 5 3 4 5.5-1.4 3.4-6 2.4-8 5-1.8 2.4.4 5.5-2 8-1.6 1.7-4.6 1-6-1.5-2.6-4.7-6.5-9.5-4-15z" fill="#59c14b" opacity=".9"/>
+    <path d="M31 27c2.5-.8 5 .5 5.5 3 .4 2.4-2 4.6-4.5 4-2.4-.6-3.5-6.2-1-7z" fill="#59c14b" opacity=".9"/>
+    <ellipse cx="24" cy="24" rx="19" ry="7.5" fill="none" stroke="#dff0ff" stroke-opacity=".55" stroke-width="1.2"/>
+    <ellipse cx="24" cy="24" rx="8" ry="19" fill="none" stroke="#dff0ff" stroke-opacity=".4" stroke-width="1"/></symbol><symbol id="ic-recycle" viewBox="0 0 48 48">
+    <path d="M13 15h22l-2 26a3 3 0 0 1-3 2.8H18A3 3 0 0 1 15 41z" fill="url(#ic-rcy-b)" stroke="#7d8ea6" stroke-width="1.3"/>
+    <rect x="10.5" y="10" width="27" height="5" rx="2.5" fill="#dbe4ef" stroke="#7d8ea6" stroke-width="1.2"/>
+    <rect x="19.5" y="6.5" width="9" height="3.5" rx="1.75" fill="#dbe4ef" stroke="#7d8ea6"/>
+    <path d="M24 21.5l3.4 5.8h-2.1l2.5 4.3-4.9-.1 2.2-4.2h-2.1z" fill="#3fa63f" opacity=".9"/>
+    <path d="M17.5 27.5l3.4 5.8-1.8 1-2.6-4.4-1.1 1.8z" fill="#3fa63f" opacity=".9"/>
+    <path d="M30.5 27.5l-2.2 3.7 2.3 3.9 2-3.5z" fill="#3fa63f" opacity=".9"/></symbol><symbol id="ic-flag" viewBox="0 0 48 48">
+    <g transform="translate(2 1)">
+      <path d="M22 8c-3.8-2.8-8.5-3.6-14-2.4V21c5.5-1.2 10.2-.4 14 2.4z" fill="#f65314"/>
+      <path d="M22 8c4-2.4 8.7-3 14-1.8V19.6c-5.3-1.2-10-.6-14 1.8z" fill="#7cbb00"/>
+      <path d="M22 23.4c-3.8-2.8-8.5-3.6-14-2.4v13.4c5.5-1.2 10.2-.4 14 2.4z" fill="#00a1f1"/>
+      <path d="M22 23.4c4-2.4 8.7-3 14-1.8v13.2c-5.3-1.2-10-.6-14 1.8z" fill="#ffbb00"/>
+    </g></symbol><symbol id="ic-volume" viewBox="0 0 48 48">
+    <path d="M8 19h8l10-8v26l-10-8H8z" fill="#fff" stroke="#0a3a86" stroke-width="1.4" stroke-linejoin="round"/>
+    <path d="M31 17c3.5 3.8 3.5 10.2 0 14M36 12c6 6.6 6 17.4 0 24" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round"/></symbol><symbol id="ic-logoff" viewBox="0 0 48 48">
+    <rect x="8" y="8" width="20" height="32" rx="3" fill="#ffce54" stroke="#c99118" stroke-width="1.4"/>
+    <circle cx="15" cy="20" r="4.4" fill="#fff" stroke="#c99118"/>
+    <path d="M9 34c1-5 10-5 11 0" fill="#fff" stroke="#c99118"/>
+    <path d="M28 24h11m0 0-4.5-4.5M39 24l-4.5 4.5" stroke="#fff" stroke-width="3.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></symbol><symbol id="ic-shutdown" viewBox="0 0 48 48">
+    <circle cx="24" cy="24" r="15.5" fill="none" stroke="#ff5a3c" stroke-width="4.5"/>
+    <rect x="21.7" y="5" width="4.6" height="15" rx="2.3" fill="#ff5a3c"/></symbol><symbol id="ic-help" viewBox="0 0 48 48">
+    <circle cx="24" cy="24" r="18" fill="url(#ic-hlp-b)" stroke="#0a3a86"/>
+    <text x="24" y="31.5" text-anchor="middle" font-family="Tahoma" font-size="20" font-weight="bold" fill="#fff">?</text></symbol><symbol id="ic-run" viewBox="0 0 48 48">
+    <rect x="7" y="10" width="34" height="28" rx="3" fill="#fff" stroke="#5b7aa8" stroke-width="1.6"/>
+    <rect x="7" y="10" width="34" height="7" rx="3" fill="#3f8cf3" stroke="#5b7aa8" stroke-width="1.2"/>
+    <path d="M15 27l8 6 11-12" stroke="#3fa63f" stroke-width="3.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></symbol><symbol id="ic-doc" viewBox="0 0 48 48">
+    <path d="M12 5h16l9 9v29H12z" fill="#fff" stroke="#5b7aa8" stroke-width="1.5"/>
+    <path d="M28 5l9 9h-9z" fill="#cfe0f4" stroke="#5b7aa8" stroke-width="1.2"/>
+    <path d="M17 20h14M17 25h14M17 30h9" stroke="#8aa4c8" stroke-width="1.8" stroke-linecap="round"/></symbol><symbol id="ic-user" viewBox="0 0 48 48">
+    <circle cx="24" cy="17" r="8" fill="#ffe0b3" stroke="#caa06a" stroke-width="1.4"/>
+    <path d="M8 42c2-10 9-13 16-13s14 3 16 13z" fill="#7ea4e0" stroke="#4a6fa5" stroke-width="1.4"/></symbol><symbol id="ic-mines" viewBox="0 0 48 48">
+    <path d="M24 8v7M24 37v7M6 26h7M35 26h7M11.3 13.3l5 5M36.7 13.3l-5 5M11.3 38.7l5-5M36.7 38.7l-5-5" stroke="#14161b" stroke-width="3.2" stroke-linecap="round"/>
+    <circle cx="24" cy="26" r="12.5" fill="#3a3f4a" stroke="#14161b" stroke-width="1.5"/>
+    <circle cx="19.5" cy="21.5" r="3.4" fill="#8b93a5" opacity=".85"/></symbol><symbol id="ic-music" viewBox="0 0 48 48">
+    <circle cx="18" cy="32" r="13" fill="url(#ic-mus-d)" stroke="#0a3a86" stroke-width="1.4"/>
+    <circle cx="18" cy="32" r="7.5" fill="#e8eef8" stroke="#5b7aa8" stroke-width="1"/>
+    <circle cx="18" cy="32" r="2.2" fill="#5b7aa8"/>
+    <path d="M32 34V12.5c0-1.6 1-2.6 2.4-2.9L39 8.5c1.8-.4 3 .6 3 2.4v3.2c0 1.7-.9 2.7-2.6 3.1L34 18.6V34c0 3.4-2.9 6-6.5 6S21 37.4 21 34s2.9-6 6.5-6c1.9 0 3.5.7 4.5 1.8z" fill="#ff9dbd" stroke="#e86a99" stroke-width="1.3" transform="translate(1 -2) scale(.92)"/>
+    <path d="M34.5 12.5l5.5-1.3v3l-5.5 1.3z" fill="#ffd6e4"/></symbol></svg></div><div class="xp-desktop" style=""><canvas class="xp-sakura" aria-hidden="true"></canvas><nav class="xp-desk-icons" aria-label="桌面图标"><!--[--><button type="button" class="xp-desk-icon" aria-label="我的电脑"><svg class="xp-ic ico" viewbox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#ic-computer"></use></svg><span class="lbl">我的电脑</span></button><button type="button" class="xp-desk-icon" aria-label="技术笔记"><svg class="xp-ic ico" viewbox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#ic-folder"></use></svg><span class="lbl">技术笔记</span></button><button type="button" class="xp-desk-icon" aria-label="二次元专区"><svg class="xp-ic ico" viewbox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#ic-anime"></use></svg><span class="lbl">二次元专区</span></button><button type="button" class="xp-desk-icon" aria-label="扫雷"><svg class="xp-ic ico" viewbox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#ic-mines"></use></svg><span class="lbl">扫雷</span></button><button type="button" class="xp-desk-icon" aria-label="我的音乐"><svg class="xp-ic ico" viewbox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#ic-music"></use></svg><span class="lbl">我的音乐</span></button><button type="button" class="xp-desk-icon" aria-label="Internet（在新窗口打开 GitHub 主页）"><svg class="xp-ic ico" viewbox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#ic-globe"></use></svg><span class="lbl">Internet</span></button><button type="button" class="xp-desk-icon" aria-label="回收站"><svg class="xp-ic ico" viewbox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#ic-recycle"></use></svg><span class="lbl">回收站</span></button><!--]--></nav><!--[--><section class="xp-window pop-in win-main centered" style="z-index:100;" aria-label="窗口：Spring 事务边界：回滚、传播与代理自调用"><header class="xp-titlebar"><svg class="xp-ic tb-ico" viewbox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#ic-doc"></use></svg><span class="tb-title">Spring 事务边界：回滚、传播与代理自调用</span><span class="xp-tb-btns"><button type="button" title="最小化" aria-label="最小化窗口"><svg viewBox="0 0 12 12"><path d="M2.5 8.5h7" stroke="#fff" stroke-width="1.8" stroke-linecap="round"></path></svg></button><button type="button" title="最大化" aria-label="最大化窗口"><svg viewBox="0 0 12 12"><rect x="2.5" y="2.5" width="7" height="7" fill="none" stroke="#fff" stroke-width="1.5"></rect></svg></button><button type="button" class="close" title="关闭" aria-label="最小化主窗口"><svg viewBox="0 0 12 12"><path d="M2.5 2.5l7 7M9.5 2.5l-7 7" stroke="#fff" stroke-width="1.7" stroke-linecap="round"></path></svg></button></span></header><div class="xp-window-body"><!--[--><div class="xp-doc"><div style="position:relative;"><div><h1 id="spring-事务边界回滚传播与代理自调用" tabindex="-1">Spring 事务边界：回滚、传播与代理自调用 <a class="header-anchor" href="#spring-事务边界回滚传播与代理自调用" aria-label="Permalink to &quot;Spring 事务边界：回滚、传播与代理自调用&quot;">​</a></h1><p>创建一个项目时，可能既要插入项目记录，又要把创建者加入成员表。如果第二步失败，第一步也应撤销。<code>@Transactional</code> 可以表达这个要求，但判断它是否生效，不能只看方法上有没有注解，还要看调用有没有经过代理、哪些操作加入了事务，以及异常如何离开方法。</p><p>本文讨论常见的 Spring 命令式事务、代理模式和单数据源场景。代码均为说明边界的示意片段，省略依赖注入、实体及 Mapper 定义。</p><h2 id="代理包住的才是声明式事务边界" tabindex="-1">代理包住的，才是声明式事务边界 <a class="header-anchor" href="#代理包住的才是声明式事务边界" aria-label="Permalink to &quot;代理包住的，才是声明式事务边界&quot;">​</a></h2><p>可以先把调用理解为三层：</p><div class="language-text"><button title="Copy Code" class="copy"></button><span class="lang">text</span><pre class="shiki github-light vp-code" tabindex="0"><code><span class="line"><span>Controller 调用 Spring 管理的 Service</span></span>
+<span class="line"><span>    → 事务代理按配置开启或加入事务</span></span>
+<span class="line"><span>    → Service 执行业务和数据库操作</span></span>
+<span class="line"><span>    → 代理根据返回结果与回滚规则提交或回滚</span></span></code></pre></div><div class="language-java"><button title="Copy Code" class="copy"></button><span class="lang">java</span><pre class="shiki github-light vp-code" tabindex="0"><code><span class="line"><span style="color:#24292E;">@</span><span style="color:#D73A49;">Transactional</span></span>
+<span class="line"><span style="color:#D73A49;">public</span><span style="color:#D73A49;"> void</span><span style="color:#6F42C1;"> createProject</span><span style="color:#24292E;">(CreateCommand command) {</span></span>
+<span class="line"><span style="color:#24292E;">    projectMapper.</span><span style="color:#6F42C1;">insert</span><span style="color:#24292E;">(</span><span style="color:#6F42C1;">buildProject</span><span style="color:#24292E;">(command));</span></span>
+<span class="line"><span style="color:#24292E;">    memberMapper.</span><span style="color:#6F42C1;">insert</span><span style="color:#24292E;">(</span><span style="color:#6F42C1;">buildOwnerMember</span><span style="color:#24292E;">(command));</span></span>
+<span class="line"><span style="color:#24292E;">}</span></span></code></pre></div><p>这段设计要成立，两个 Mapper 必须使用参与该事务的数据访问资源。给一个方法加注解，不会自动把另一个数据源、Kafka 消息或远程 HTTP 调用变成同一笔可回滚操作。事务范围应围绕需要共同成功的数据库修改设计。</p><h2 id="异常类型和传播路径决定回滚结果" tabindex="-1">异常类型和传播路径决定回滚结果 <a class="header-anchor" href="#异常类型和传播路径决定回滚结果" aria-label="Permalink to &quot;异常类型和传播路径决定回滚结果&quot;">​</a></h2><p>在未修改默认回滚规则时，<code>RuntimeException</code> 和 <code>Error</code> 会触发回滚，受检异常默认不会。确实需要让某类受检异常导致回滚时，可以显式声明：</p><div class="language-java"><button title="Copy Code" class="copy"></button><span class="lang">java</span><pre class="shiki github-light vp-code" tabindex="0"><code><span class="line"><span style="color:#24292E;">@</span><span style="color:#D73A49;">Transactional</span><span style="color:#24292E;">(</span><span style="color:#005CC5;">rollbackFor</span><span style="color:#D73A49;"> =</span><span style="color:#24292E;"> ImportException.class)</span></span>
+<span class="line"><span style="color:#D73A49;">public</span><span style="color:#D73A49;"> void</span><span style="color:#6F42C1;"> importRecords</span><span style="color:#24292E;">() throws ImportException {</span></span>
+<span class="line"><span style="color:#6A737D;">    // 写入数据库；校验失败时向外抛出 ImportException</span></span>
+<span class="line"><span style="color:#24292E;">}</span></span></code></pre></div><p>另一个容易混淆的地方是 <code>catch</code>。如果方法把异常吞掉，正常返回，且事务此前没有被标记为仅回滚，代理通常会按成功路径提交。记录一条错误日志并不等于要求事务回滚。</p><p>但“捕获异常就一定能提交”同样不成立。假设内部方法通过代理加入同一事务，并已把共享事务标记为 <code>rollback-only</code>，外层即使捕获异常，提交时仍可能得到 <code>UnexpectedRollbackException</code>。应结合事务是否已经被标记回滚判断，不能只看最后有没有异常向外抛。</p><p>业务层可以把异常交给统一异常处理器生成响应；事务代理通常先处理事务结果，再由上层将异常转换成 HTTP 响应。返回一个表示失败的普通对象，则不必然触发回滚。</p><h2 id="传播行为描述的是如何使用已有事务" tabindex="-1">传播行为描述的是如何使用已有事务 <a class="header-anchor" href="#传播行为描述的是如何使用已有事务" aria-label="Permalink to &quot;传播行为描述的是如何使用已有事务&quot;">​</a></h2><p>传播行为和隔离级别回答不同问题：前者关心调用链如何组织事务，后者关心并发事务之间的数据可见性与隔离。</p><table tabindex="0"><thead><tr><th>传播行为</th><th>当前存在事务时</th><th>当前不存在事务时</th></tr></thead><tbody><tr><td><code>REQUIRED</code>，默认</td><td>加入已有事务</td><td>新建事务</td></tr><tr><td><code>REQUIRES_NEW</code></td><td>挂起外层，开启独立事务</td><td>新建事务</td></tr><tr><td><code>MANDATORY</code></td><td>加入已有事务</td><td>抛出异常</td></tr><tr><td><code>NOT_SUPPORTED</code></td><td>挂起外层，以非事务方式执行</td><td>以非事务方式执行</td></tr></tbody></table><p>例如，写入“待发送事件”的方法如果必须和主业务共同提交，可以通过 <code>MANDATORY</code> 明确约束调用方。它表达的是“必须已有事务”，而不是悄悄替调用方新开一笔。</p><p>独立的审计记录可能适合 <code>REQUIRES_NEW</code>：内部事务一旦提交，外层随后回滚不会撤销它。但它不保证异常不会影响外层；内部异常若继续向外传播，仍可能触发外层的回滚规则。使用这种传播方式还需考虑额外连接需求，不能把它当成不付成本的隔离开关。</p><p>尤其不要为了“解耦”就提前提交一条成功通知：主业务之后可能回滚，通知却已经存在。是否独立提交，首先是业务语义问题。</p><h2 id="同一个对象中的自调用不会开启新的代理边界" tabindex="-1">同一个对象中的自调用不会开启新的代理边界 <a class="header-anchor" href="#同一个对象中的自调用不会开启新的代理边界" aria-label="Permalink to &quot;同一个对象中的自调用不会开启新的代理边界&quot;">​</a></h2><p>在默认代理模式下，下面的调用没有重新经过 Spring 代理：</p><div class="language-java"><button title="Copy Code" class="copy"></button><span class="lang">java</span><pre class="shiki github-light vp-code" tabindex="0"><code><span class="line"><span style="color:#D73A49;">public</span><span style="color:#D73A49;"> void</span><span style="color:#6F42C1;"> register</span><span style="color:#24292E;">() {</span></span>
+<span class="line"><span style="color:#005CC5;">    this</span><span style="color:#24292E;">.</span><span style="color:#6F42C1;">saveAccount</span><span style="color:#24292E;">();</span></span>
+<span class="line"><span style="color:#24292E;">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#24292E;">@</span><span style="color:#D73A49;">Transactional</span></span>
+<span class="line"><span style="color:#D73A49;">public</span><span style="color:#D73A49;"> void</span><span style="color:#6F42C1;"> saveAccount</span><span style="color:#24292E;">() {</span></span>
+<span class="line"><span style="color:#24292E;">    accountMapper.</span><span style="color:#6F42C1;">insert</span><span style="color:#24292E;">(</span><span style="color:#6F42C1;">buildAccount</span><span style="color:#24292E;">());</span></span>
+<span class="line"><span style="color:#24292E;">}</span></span></code></pre></div><p>如果外部调用的是未声明事务的 <code>register()</code>，不能指望内部 <code>saveAccount()</code> 上的注解单独建立事务。若外层本身已有事务，内部操作仍可能参与已有事务；问题是内部注解要求的新边界没有被应用，例如 <code>REQUIRES_NEW</code> 不会仅凭这次自调用生效。</p><p>一种清晰的做法是把需要独立事务语义的方法放入另一个 Spring Bean，由调用方通过注入后的对象调用。也可以在适合的场景使用 <code>TransactionTemplate</code> 显式组织边界。不要通过手动 <code>new</code> Service 来绕开容器，再期待声明式事务继续工作。</p><h2 id="把事务边界与业务成功条件对齐" tabindex="-1">把事务边界与业务成功条件对齐 <a class="header-anchor" href="#把事务边界与业务成功条件对齐" aria-label="Permalink to &quot;把事务边界与业务成功条件对齐&quot;">​</a></h2><p>设计入口时，可以先用一句话写清楚“这次成功必须同时留下哪些数据”。例如项目和创建者成员记录需要共同存在，就由一个 Service 方法组织它们；展示页的多个互不相关查询，则不必因为位于同一个接口里就强行建立很长的写事务。</p><p>事务中的远程调用和大量文件处理也会延长连接、锁等资源的占用时间。若把后续通知移出主事务，就需要同时说明失败后如何恢复，不能只移动一行调用便认为一致性问题已经解决。</p><p>排查时沿实际调用链确认三个事实：事务入口是否经过代理，数据库操作是否加入预期事务，以及失败时应用了什么回滚规则。它们比反复补注解更能解释提交结果。</p><h2 id="参考与来源" tabindex="-1">参考与来源 <a class="header-anchor" href="#参考与来源" aria-label="Permalink to &quot;参考与来源&quot;">​</a></h2><p>本文整理自个人项目学习笔记，对事务代理、异常回滚和传播行为补充了适用边界。</p><ul><li><a href="https://docs.spring.io/spring-framework/reference/data-access/transaction/declarative/annotations.html" target="_blank" rel="noreferrer">Spring：使用 @Transactional，含代理模式与自调用说明</a></li><li><a href="https://docs.spring.io/spring-framework/reference/data-access/transaction/declarative/rolling-back.html" target="_blank" rel="noreferrer">Spring：声明式事务的回滚规则</a></li><li><a href="https://docs.spring.io/spring-framework/reference/data-access/transaction/declarative/tx-propagation.html" target="_blank" rel="noreferrer">Spring：事务传播与独立事务的资源需求</a></li></ul></div></div></div><!--]--></div></section><!--]--><div class="xp-taskbar" role="toolbar" aria-label="任务栏"><button class="xp-start" aria-label="开始菜单"><svg class="xp-ic" viewbox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#ic-flag"></use></svg>开始 </button><div class="xp-quick"><!--[--><button type="button" title="Internet · GitHub" aria-label="Internet · GitHub"><svg class="xp-ic" viewbox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#ic-globe"></use></svg></button><button type="button" title="技术笔记" aria-label="技术笔记"><svg class="xp-ic" viewbox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#ic-folder"></use></svg></button><button type="button" title="二次元专区" aria-label="二次元专区"><svg class="xp-ic" viewbox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#ic-anime"></use></svg></button><!--]--></div><div class="xp-tasks"><!--[--><button type="button" class="active xp-task-btn" title="Spring 事务边界：回滚、传播与代理自调用" aria-label="切换到窗口：Spring 事务边界：回滚、传播与代理自调用"><svg class="xp-ic" viewbox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#ic-computer"></use></svg><span class="t">Spring 事务边界：回滚、传播与代理自调用</span></button><!--]--></div><div class="xp-tray"><button type="button" class="tray-btn" title="樱花飘落 开/关" aria-label="樱花飘落特效 开关" aria-pressed="true"><svg class="xp-ic" viewbox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#ic-anime"></use></svg></button><button type="button" class="tray-btn" title="音量（假装可以调）" aria-label="音量（装饰玩梗按钮，无实际功能）" aria-pressed="false"><svg class="xp-ic" viewbox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#ic-volume"></use></svg></button><span class="sep"></span><span class="xp-clock" title=""></span></div><!----></div></div><!----></div></div>
+    <script>window.__VP_HASH_MAP__=JSON.parse("{\"404.md\":\"DSU6C4TI\",\"about.md\":\"B9RP1x8f\",\"anime.md\":\"D8VaZlPa\",\"index.md\":\"DrPf42XZ\",\"posts_first-post.md\":\"5RUZx9jM\",\"posts_index.md\":\"DCuCvvAp\",\"posts_kafka-outbox-notifications.md\":\"BUDu-3ls\",\"posts_leetcode-linked-list-cycle.md\":\"Bc1cJ0xN\",\"posts_leetcode-lru-cache.md\":\"KgxbmGqC\",\"posts_leetcode-monotonic-deque.md\":\"CShTEKZm\",\"posts_leetcode-prefix-sum.md\":\"MlaViq19\",\"posts_mcp-tools-rag-agent.md\":\"BL0xMsBO\",\"posts_python-reportkit-design.md\":\"Crw2ZWuL\",\"posts_rag-retrieval-pipeline.md\":\"9vUo9rvn\",\"posts_spring-security-session.md\":\"CL0O2k4x\",\"posts_spring-transaction-boundaries.md\":\"CjcBxxEd\"}");window.__VP_SITE_DATA__=JSON.parse("{\"lang\":\"zh-CN\",\"dir\":\"ltr\",\"title\":\"Yany_uki\",\"titleTemplate\":\":title · Yany_uki\",\"description\":\"Yany_uki 的 WinXP 风格个人博客 · 以代码为剑，奔赴热爱\",\"base\":\"/blog-pages/\",\"head\":[],\"router\":{\"prefetchLinks\":true},\"appearance\":false,\"themeConfig\":{},\"locales\":{},\"scrollOffset\":134,\"cleanUrls\":false}");</script>
+    
+  </body>
+</html>

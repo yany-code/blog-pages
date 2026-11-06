@@ -1,8 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://yany-code.github.io/blog-pages/about.html</loc><lastmod>2026-09-27</lastmod></url>
-  <url><loc>https://yany-code.github.io/blog-pages/anime.html</loc><lastmod>2026-09-27</lastmod></url>
-  <url><loc>https://yany-code.github.io/blog-pages/</loc><lastmod>2026-09-27</lastmod></url>
-  <url><loc>https://yany-code.github.io/blog-pages/posts/first-post.html</loc><lastmod>2026-09-27</lastmod></url>
-  <url><loc>https://yany-code.github.io/blog-pages/posts/</loc><lastmod>2026-09-27</lastmod></url>
+  <url><loc>https://yany-code.github.io/blog-pages/about.html</loc><lastmod>2026-11-06</lastmod></url>
+  <url><loc>https://yany-code.github.io/blog-pages/anime.html</loc><lastmod>2026-11-06</lastmod></url>
+  <url><loc>https://yany-code.github.io/blog-pages/</loc><lastmod>2026-11-06</lastmod></url>
+  <url><loc>https://yany-code.github.io/blog-pages/posts/first-post.html</loc><lastmod>2026-11-06</lastmod></url>
+  <url><loc>https://yany-code.github.io/blog-pages/posts/</loc><lastmod>2026-11-06</lastmod></url>
+  <url><loc>https://yany-code.github.io/blog-pages/posts/kafka-outbox-notifications.html</loc><lastmod>2026-11-06</lastmod></url>
+  <url><loc>https://yany-code.github.io/blog-pages/posts/leetcode-linked-list-cycle.html</loc><lastmod>2026-11-06</lastmod></url>
+  <url><loc>https://yany-code.github.io/blog-pages/posts/leetcode-lru-cache.html</loc><lastmod>2026-11-06</lastmod></url>
+  <url><loc>https://yany-code.github.io/blog-pages/posts/leetcode-monotonic-deque.html</loc><lastmod>2026-11-06</lastmod></url>
+  <url><loc>https://yany-code.github.io/blog-pages/posts/leetcode-prefix-sum.html</loc><lastmod>2026-11-06</lastmod></url>
+  <url><loc>https://yany-code.github.io/blog-pages/posts/mcp-tools-rag-agent.html</loc><lastmod>2026-11-06</lastmod></url>
+  <url><loc>https://yany-code.github.io/blog-pages/posts/python-reportkit-design.html</loc><lastmod>2026-11-06</lastmod></url>
+  <url><loc>https://yany-code.github.io/blog-pages/posts/rag-retrieval-pipeline.html</loc><lastmod>2026-11-06</lastmod></url>
+  <url><loc>https://yany-code.github.io/blog-pages/posts/spring-security-session.html</loc><lastmod>2026-11-06</lastmod></url>
+  <url><loc>https://yany-code.github.io/blog-pages/posts/spring-transaction-boundaries.html</loc><lastmod>2026-11-06</lastmod></url>
 </urlset>

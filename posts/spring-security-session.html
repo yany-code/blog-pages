@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="zh-CN" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Spring Security 会话登录：身份如何跨请求保存 · Yany_uki</title>
+    <meta name="description" content="沿一次登录和后续请求理解 SecurityFilterChain、Authentication、SecurityContext 与 Session，并说明自定义登录的显式保存边界。">
+    <meta name="generator" content="VitePress v1.6.4">
+    <link rel="preload stylesheet" href="/blog-pages/assets/style.CVacsoCn.css" as="style">
+    <link rel="preload stylesheet" href="/blog-pages/vp-icons.css" as="style">
+    
+    <script type="module" src="/blog-pages/assets/app.CNt6wUAC.js"></script>
+    <link rel="modulepreload" href="/blog-pages/assets/chunks/theme.C_SWRlXp.js">
+    <link rel="modulepreload" href="/blog-pages/assets/chunks/framework.B8AKDgcm.js">
+    <link rel="modulepreload" href="/blog-pages/assets/posts_spring-security-session.md.CL0O2k4x.lean.js">
+    <link rel="icon" type="image/svg+xml" href="/blog-pages/favicon.svg">
+    <meta name="theme-color" content="#245edb">
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Yany_uki">
+    <meta property="og:title" content="Yany_uki 的 WinXP 个人博客">
+    <meta property="og:description" content="以代码为剑，奔赴热爱 —— 计科学生的学习手账 · 兼职二次元居民">
+    <meta property="og:image" content="https://cdn.jsdelivr.net/gh/yany-code/blog-images@main/images/yuki.jpg">
+    <meta property="og:url" content="https://yany-code.github.io/blog-pages/">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Yany_uki 的 WinXP 个人博客">
+    <meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/yany-code/blog-images@main/images/yuki.jpg">
+    <script id="check-mac-os">document.documentElement.classList.toggle("mac",/Mac|iPhone|iPod|iPad/i.test(navigator.platform));</script>
+    <link rel="canonical" href="https://yany-code.github.io/blog-pages/posts/spring-security-session.html">
+  </head>
+  <body>
+    <div id="app"><div class="xp-root"><div style="position:absolute;width:0;height:0;overflow:hidden;" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" style="position:absolute;width:0;height:0;overflow:hidden"><defs>
+  <linearGradient id="ic-cpu-scr" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#cfe9ff"/><stop offset=".5" stop-color="#6cb1f7"/><stop offset="1" stop-color="#1e5fc4"/>
+  </linearGradient>
+  <linearGradient id="ic-fld-b" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#ffe9a8"/><stop offset="1" stop-color="#f3b93f"/>
+  </linearGradient>
+  <radialGradient id="ic-anm-p" cx=".5" cy=".35" r=".9">
+    <stop offset="0" stop-color="#ffd6e4"/><stop offset="1" stop-color="#ff7fab"/>
+  </radialGradient>
+  <radialGradient id="ic-glb-b" cx=".38" cy=".3" r="1">
+    <stop offset="0" stop-color="#9fd4ff"/><stop offset=".55" stop-color="#2f7fe0"/><stop offset="1" stop-color="#0b3f8f"/>
+  </radialGradient>
+  <linearGradient id="ic-rcy-b" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0" stop-color="#cfd8e6"/><stop offset=".5" stop-color="#eef3fa"/><stop offset="1" stop-color="#b9c6d8"/>
+  </linearGradient>
+  <radialGradient id="ic-hlp-b" cx=".4" cy=".3" r=".9">
+    <stop offset="0" stop-color="#9fd4ff"/><stop offset="1" stop-color="#1e5fc4"/>
+  </radialGradient>
+  <radialGradient id="ic-mus-d" cx=".38" cy=".32" r="1">
+    <stop offset="0" stop-color="#8fb4ec"/><stop offset=".6" stop-color="#2e6fd8"/><stop offset="1" stop-color="#0b3f8f"/>
+  </radialGradient></defs><symbol id="ic-computer" viewBox="0 0 48 48">
+    <rect x="5" y="6" width="38" height="27" rx="3" fill="#e3ecf6" stroke="#5b7aa8" stroke-width="1.5"/>
+    <rect x="8.5" y="9.5" width="31" height="20" rx="1.5" fill="url(#ic-cpu-scr)"/>
+    <path d="M23 10c-4 6-4 14 0 19" stroke="#ffffff" stroke-opacity=".5" fill="none" stroke-width="1.2"/>
+    <path d="M18 33h12l2 6H16z" fill="#cdd9ea" stroke="#5b7aa8"/>
+    <rect x="11" y="39" width="26" height="3.5" rx="1.75" fill="#e3ecf6" stroke="#5b7aa8"/></symbol><symbol id="ic-folder" viewBox="0 0 48 48">
+    <path d="M4 11a3 3 0 0 1 3-3h11.2l4 4.2H41a3 3 0 0 1 3 3V37a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3z" fill="#dfa93a" stroke="#b98a20" stroke-width="1.2"/>
+    <path d="M4 17.5h40V37a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3z" fill="url(#ic-fld-b)" stroke="#c99b2e" stroke-width="1"/>
+    <path d="M6 15.5h36v2H6z" fill="#fff" opacity=".45"/></symbol><symbol id="ic-anime" viewBox="0 0 48 48">
+    <ellipse cx="24" cy="11" rx="6.5" ry="9" fill="url(#ic-anm-p)" stroke="#e86a99" stroke-width="1"/>
+    <ellipse cx="24" cy="37" rx="6.5" ry="9" fill="url(#ic-anm-p)" stroke="#e86a99" stroke-width="1"/>
+    <ellipse cx="11" cy="19" rx="6.5" ry="9" fill="url(#ic-anm-p)" stroke="#e86a99" stroke-width="1" transform="rotate(-72 11 19)"/>
+    <ellipse cx="37" cy="19" rx="6.5" ry="9" fill="url(#ic-anm-p)" stroke="#e86a99" stroke-width="1" transform="rotate(72 37 19)"/>
+    <ellipse cx="15" cy="33" rx="6.5" ry="9" fill="url(#ic-anm-p)" stroke="#e86a99" stroke-width="1" transform="rotate(-144 15 33)"/>
+    <ellipse cx="33" cy="33" rx="6.5" ry="9" fill="url(#ic-anm-p)" stroke="#e86a99" stroke-width="1" transform="rotate(144 33 33)"/>
+    <circle cx="24" cy="24" r="5.5" fill="#ffe37a" stroke="#e8b53f" stroke-width="1"/></symbol><symbol id="ic-globe" viewBox="0 0 48 48">
+    <circle cx="24" cy="24" r="19" fill="url(#ic-glb-b)" stroke="#0a3a86"/>
+    <path d="M12 15c5-3 11-3.5 16-2 3 1 5 3 4 5.5-1.4 3.4-6 2.4-8 5-1.8 2.4.4 5.5-2 8-1.6 1.7-4.6 1-6-1.5-2.6-4.7-6.5-9.5-4-15z" fill="#59c14b" opacity=".9"/>
+    <path d="M31 27c2.5-.8 5 .5 5.5 3 .4 2.4-2 4.6-4.5 4-2.4-.6-3.5-6.2-1-7z" fill="#59c14b" opacity=".9"/>
+    <ellipse cx="24" cy="24" rx="19" ry="7.5" fill="none" stroke="#dff0ff" stroke-opacity=".55" stroke-width="1.2"/>
+    <ellipse cx="24" cy="24" rx="8" ry="19" fill="none" stroke="#dff0ff" stroke-opacity=".4" stroke-width="1"/></symbol><symbol id="ic-recycle" viewBox="0 0 48 48">
+    <path d="M13 15h22l-2 26a3 3 0 0 1-3 2.8H18A3 3 0 0 1 15 41z" fill="url(#ic-rcy-b)" stroke="#7d8ea6" stroke-width="1.3"/>
+    <rect x="10.5" y="10" width="27" height="5" rx="2.5" fill="#dbe4ef" stroke="#7d8ea6" stroke-width="1.2"/>
+    <rect x="19.5" y="6.5" width="9" height="3.5" rx="1.75" fill="#dbe4ef" stroke="#7d8ea6"/>
+    <path d="M24 21.5l3.4 5.8h-2.1l2.5 4.3-4.9-.1 2.2-4.2h-2.1z" fill="#3fa63f" opacity=".9"/>
+    <path d="M17.5 27.5l3.4 5.8-1.8 1-2.6-4.4-1.1 1.8z" fill="#3fa63f" opacity=".9"/>
+    <path d="M30.5 27.5l-2.2 3.7 2.3 3.9 2-3.5z" fill="#3fa63f" opacity=".9"/></symbol><symbol id="ic-flag" viewBox="0 0 48 48">
+    <g transform="translate(2 1)">
+      <path d="M22 8c-3.8-2.8-8.5-3.6-14-2.4V21c5.5-1.2 10.2-.4 14 2.4z" fill="#f65314"/>
+      <path d="M22 8c4-2.4 8.7-3 14-1.8V19.6c-5.3-1.2-10-.6-14 1.8z" fill="#7cbb00"/>
+      <path d="M22 23.4c-3.8-2.8-8.5-3.6-14-2.4v13.4c5.5-1.2 10.2-.4 14 2.4z" fill="#00a1f1"/>
+      <path d="M22 23.4c4-2.4 8.7-3 14-1.8v13.2c-5.3-1.2-10-.6-14 1.8z" fill="#ffbb00"/>
+    </g></symbol><symbol id="ic-volume" viewBox="0 0 48 48">
+    <path d="M8 19h8l10-8v26l-10-8H8z" fill="#fff" stroke="#0a3a86" stroke-width="1.4" stroke-linejoin="round"/>
+    <path d="M31 17c3.5 3.8 3.5 10.2 0 14M36 12c6 6.6 6 17.4 0 24" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round"/></symbol><symbol id="ic-logoff" viewBox="0 0 48 48">
+    <rect x="8" y="8" width="20" height="32" rx="3" fill="#ffce54" stroke="#c99118" stroke-width="1.4"/>
+    <circle cx="15" cy="20" r="4.4" fill="#fff" stroke="#c99118"/>
+    <path d="M9 34c1-5 10-5 11 0" fill="#fff" stroke="#c99118"/>
+    <path d="M28 24h11m0 0-4.5-4.5M39 24l-4.5 4.5" stroke="#fff" stroke-width="3.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></symbol><symbol id="ic-shutdown" viewBox="0 0 48 48">
+    <circle cx="24" cy="24" r="15.5" fill="none" stroke="#ff5a3c" stroke-width="4.5"/>
+    <rect x="21.7" y="5" width="4.6" height="15" rx="2.3" fill="#ff5a3c"/></symbol><symbol id="ic-help" viewBox="0 0 48 48">
+    <circle cx="24" cy="24" r="18" fill="url(#ic-hlp-b)" stroke="#0a3a86"/>
+    <text x="24" y="31.5" text-anchor="middle" font-family="Tahoma" font-size="20" font-weight="bold" fill="#fff">?</text></symbol><symbol id="ic-run" viewBox="0 0 48 48">
+    <rect x="7" y="10" width="34" height="28" rx="3" fill="#fff" stroke="#5b7aa8" stroke-width="1.6"/>
+    <rect x="7" y="10" width="34" height="7" rx="3" fill="#3f8cf3" stroke="#5b7aa8" stroke-width="1.2"/>
+    <path d="M15 27l8 6 11-12" stroke="#3fa63f" stroke-width="3.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></symbol><symbol id="ic-doc" viewBox="0 0 48 48">
+    <path d="M12 5h16l9 9v29H12z" fill="#fff" stroke="#5b7aa8" stroke-width="1.5"/>
+    <path d="M28 5l9 9h-9z" fill="#cfe0f4" stroke="#5b7aa8" stroke-width="1.2"/>
+    <path d="M17 20h14M17 25h14M17 30h9" stroke="#8aa4c8" stroke-width="1.8" stroke-linecap="round"/></symbol><symbol id="ic-user" viewBox="0 0 48 48">
+    <circle cx="24" cy="17" r="8" fill="#ffe0b3" stroke="#caa06a" stroke-width="1.4"/>
+    <path d="M8 42c2-10 9-13 16-13s14 3 16 13z" fill="#7ea4e0" stroke="#4a6fa5" stroke-width="1.4"/></symbol><symbol id="ic-mines" viewBox="0 0 48 48">
+    <path d="M24 8v7M24 37v7M6 26h7M35 26h7M11.3 13.3l5 5M36.7 13.3l-5 5M11.3 38.7l5-5M36.7 38.7l-5-5" stroke="#14161b" stroke-width="3.2" stroke-linecap="round"/>
+    <circle cx="24" cy="26" r="12.5" fill="#3a3f4a" stroke="#14161b" stroke-width="1.5"/>
+    <circle cx="19.5" cy="21.5" r="3.4" fill="#8b93a5" opacity=".85"/></symbol><symbol id="ic-music" viewBox="0 0 48 48">
+    <circle cx="18" cy="32" r="13" fill="url(#ic-mus-d)" stroke="#0a3a86" stroke-width="1.4"/>
+    <circle cx="18" cy="32" r="7.5" fill="#e8eef8" stroke="#5b7aa8" stroke-width="1"/>
+    <circle cx="18" cy="32" r="2.2" fill="#5b7aa8"/>
+    <path d="M32 34V12.5c0-1.6 1-2.6 2.4-2.9L39 8.5c1.8-.4 3 .6 3 2.4v3.2c0 1.7-.9 2.7-2.6 3.1L34 18.6V34c0 3.4-2.9 6-6.5 6S21 37.4 21 34s2.9-6 6.5-6c1.9 0 3.5.7 4.5 1.8z" fill="#ff9dbd" stroke="#e86a99" stroke-width="1.3" transform="translate(1 -2) scale(.92)"/>
+    <path d="M34.5 12.5l5.5-1.3v3l-5.5 1.3z" fill="#ffd6e4"/></symbol></svg></div><div class="xp-desktop" style=""><canvas class="xp-sakura" aria-hidden="true"></canvas><nav class="xp-desk-icons" aria-label="桌面图标"><!--[--><button type="button" class="xp-desk-icon" aria-label="我的电脑"><svg class="xp-ic ico" viewbox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#ic-computer"></use></svg><span class="lbl">我的电脑</span></button><button type="button" class="xp-desk-icon" aria-label="技术笔记"><svg class="xp-ic ico" viewbox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#ic-folder"></use></svg><span class="lbl">技术笔记</span></button><button type="button" class="xp-desk-icon" aria-label="二次元专区"><svg class="xp-ic ico" viewbox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#ic-anime"></use></svg><span class="lbl">二次元专区</span></button><button type="button" class="xp-desk-icon" aria-label="扫雷"><svg class="xp-ic ico" viewbox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#ic-mines"></use></svg><span class="lbl">扫雷</span></button><button type="button" class="xp-desk-icon" aria-label="我的音乐"><svg class="xp-ic ico" viewbox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#ic-music"></use></svg><span class="lbl">我的音乐</span></button><button type="button" class="xp-desk-icon" aria-label="Internet（在新窗口打开 GitHub 主页）"><svg class="xp-ic ico" viewbox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#ic-globe"></use></svg><span class="lbl">Internet</span></button><button type="button" class="xp-desk-icon" aria-label="回收站"><svg class="xp-ic ico" viewbox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#ic-recycle"></use></svg><span class="lbl">回收站</span></button><!--]--></nav><!--[--><section class="xp-window pop-in win-main centered" style="z-index:100;" aria-label="窗口：Spring Security 会话登录：身份如何跨请求保存"><header class="xp-titlebar"><svg class="xp-ic tb-ico" viewbox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#ic-doc"></use></svg><span class="tb-title">Spring Security 会话登录：身份如何跨请求保存</span><span class="xp-tb-btns"><button type="button" title="最小化" aria-label="最小化窗口"><svg viewBox="0 0 12 12"><path d="M2.5 8.5h7" stroke="#fff" stroke-width="1.8" stroke-linecap="round"></path></svg></button><button type="button" title="最大化" aria-label="最大化窗口"><svg viewBox="0 0 12 12"><rect x="2.5" y="2.5" width="7" height="7" fill="none" stroke="#fff" stroke-width="1.5"></rect></svg></button><button type="button" class="close" title="关闭" aria-label="最小化主窗口"><svg viewBox="0 0 12 12"><path d="M2.5 2.5l7 7M9.5 2.5l-7 7" stroke="#fff" stroke-width="1.7" stroke-linecap="round"></path></svg></button></span></header><div class="xp-window-body"><!--[--><div class="xp-doc"><div style="position:relative;"><div><h1 id="spring-security-会话登录身份如何跨请求保存" tabindex="-1">Spring Security 会话登录：身份如何跨请求保存 <a class="header-anchor" href="#spring-security-会话登录身份如何跨请求保存" aria-label="Permalink to &quot;Spring Security 会话登录：身份如何跨请求保存&quot;">​</a></h1><p>用户名和密码验证通过之后，为什么下一次请求不需要再验证一遍？理解这个问题，需要把“验证本次凭据”和“保存后续可用的登录状态”分开看。前者产生认证结果，后者把认证结果与之后的请求关联起来。</p><p>本文以 Servlet 应用中的会话登录为例，关注 Spring Security 6 及之后常见的显式保存机制。JWT 等无状态认证使用不同的持久化策略，不能直接套用下面的 Session 流程。</p><h2 id="安全过滤器在-controller-之前工作" tabindex="-1">安全过滤器在 Controller 之前工作 <a class="header-anchor" href="#安全过滤器在-controller-之前工作" aria-label="Permalink to &quot;安全过滤器在 Controller 之前工作&quot;">​</a></h2><p>一个经过 Spring Security 的典型请求可以概括为：</p><div class="language-text"><button title="Copy Code" class="copy"></button><span class="lang">text</span><pre class="shiki github-light vp-code" tabindex="0"><code><span class="line"><span>HTTP 请求</span></span>
+<span class="line"><span>  → Servlet 过滤器链中的 DelegatingFilterProxy</span></span>
+<span class="line"><span>  → FilterChainProxy</span></span>
+<span class="line"><span>  → 选择匹配的 SecurityFilterChain，执行其中的过滤器</span></span>
+<span class="line"><span>  → DispatcherServlet</span></span>
+<span class="line"><span>  → Spring MVC 拦截器与 Controller</span></span>
+<span class="line"><span>  → Service → Mapper</span></span></code></pre></div><p><code>SecurityFilterChain</code> 描述请求匹配条件以及要应用的安全过滤器。存在多条链时，由 <code>FilterChainProxy</code> 选择第一条匹配的链，不是把所有链中的规则全部叠加。所选链可以恢复身份、进行认证、校验 CSRF、防止未授权访问，也可能直接返回响应，不再进入 Controller。</p><p>Filter 属于 Servlet 请求处理机制，作用范围不限于 MVC Controller；MVC 的 <code>HandlerInterceptor</code> 则围绕已选择的处理器工作。它们与普通 Bean 的区别主要在参与请求处理的接入位置，不能简单理解为“普通 Bean 只在启动时有用，Filter 才会自动运行”。</p><h2 id="登录同时解决凭据验证与状态建立" tabindex="-1">登录同时解决凭据验证与状态建立 <a class="header-anchor" href="#登录同时解决凭据验证与状态建立" aria-label="Permalink to &quot;登录同时解决凭据验证与状态建立&quot;">​</a></h2><p>用户名密码认证的一条常见路径是：</p><div class="language-text"><button title="Copy Code" class="copy"></button><span class="lang">text</span><pre class="shiki github-light vp-code" tabindex="0"><code><span class="line"><span>接收登录凭据</span></span>
+<span class="line"><span>  → 创建未认证的 Authentication</span></span>
+<span class="line"><span>  → AuthenticationManager 委派给适合的 AuthenticationProvider</span></span>
+<span class="line"><span>  → 查询用户并校验密码</span></span>
+<span class="line"><span>  → 得到已认证的 Authentication</span></span>
+<span class="line"><span>  → 应用会话认证策略</span></span>
+<span class="line"><span>  → 创建、设置并保存 SecurityContext</span></span></code></pre></div><p><code>AuthenticationManager</code> 是认证入口，用户名密码场景通常由相应 Provider 配合 <code>UserDetailsService</code> 和 <code>PasswordEncoder</code> 完成。认证成功后得到的 <code>Authentication</code> 包含当前主体及权限信息；它不是让业务代码自己拼一个“已登录”标记来代替密码校验。</p><p><code>SecurityContext</code> 包含认证对象，<code>SecurityContextHolder</code> 提供当前执行上下文中的访问入口。常见 Servlet 配置使用线程关联的存储方式，因此设置 Holder 主要影响当前请求的处理，并不天然意味着下一个请求也能恢复这个身份。</p><h2 id="自定义登录需要显式保存上下文" tabindex="-1">自定义登录需要显式保存上下文 <a class="header-anchor" href="#自定义登录需要显式保存上下文" aria-label="Permalink to &quot;自定义登录需要显式保存上下文&quot;">​</a></h2><p>Spring Security 提供的标准认证流程会完成其配置要求的相关步骤。若自己在 Controller 或 Filter 中调用认证管理器，就需要明确负责会话策略与上下文持久化。</p><p>下面是顺序示意，省略异常响应、依赖声明和应用配置，不能作为完整登录接口直接复制运行：</p><div class="language-java"><button title="Copy Code" class="copy"></button><span class="lang">java</span><pre class="shiki github-light vp-code" tabindex="0"><code><span class="line"><span style="color:#24292E;">Authentication result </span><span style="color:#D73A49;">=</span><span style="color:#24292E;"> authenticationManager.</span><span style="color:#6F42C1;">authenticate</span><span style="color:#24292E;">(</span></span>
+<span class="line"><span style="color:#24292E;">    UsernamePasswordAuthenticationToken.</span><span style="color:#6F42C1;">unauthenticated</span><span style="color:#24292E;">(</span></span>
+<span class="line"><span style="color:#24292E;">        command.</span><span style="color:#6F42C1;">username</span><span style="color:#24292E;">(), command.</span><span style="color:#6F42C1;">password</span><span style="color:#24292E;">())</span></span>
+<span class="line"><span style="color:#24292E;">);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#24292E;">sessionStrategy.</span><span style="color:#6F42C1;">onAuthentication</span><span style="color:#24292E;">(result, request, response);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#24292E;">SecurityContext context </span><span style="color:#D73A49;">=</span><span style="color:#24292E;"> SecurityContextHolder.</span><span style="color:#6F42C1;">createEmptyContext</span><span style="color:#24292E;">();</span></span>
+<span class="line"><span style="color:#24292E;">context.</span><span style="color:#6F42C1;">setAuthentication</span><span style="color:#24292E;">(result);</span></span>
+<span class="line"><span style="color:#24292E;">SecurityContextHolder.</span><span style="color:#6F42C1;">setContext</span><span style="color:#24292E;">(context);</span></span>
+<span class="line"><span style="color:#24292E;">contextRepository.</span><span style="color:#6F42C1;">saveContext</span><span style="color:#24292E;">(context, request, response);</span></span></code></pre></div><p>这里的 <code>contextRepository</code> 必须与安全过滤器使用的持久化配置一致；会话场景通常包含基于 HTTP Session 的仓库。只调用 <code>SecurityContextHolder.setContext()</code>，在采用 <code>SecurityContextHolderFilter</code> 的显式保存配置下，不能保证身份跨请求保留。</p><p>会话策略还可能包含会话固定攻击防护、并发会话控制和认证后的 CSRF 令牌处理。自定义认证入口应复用应用实际配置的策略，避免随意调用一个空策略就以为这些能力已经具备。具体组件组合需要根据所用版本和配置核对。</p><h2 id="下一次请求怎样找到同一个身份" tabindex="-1">下一次请求怎样找到同一个身份 <a class="header-anchor" href="#下一次请求怎样找到同一个身份" aria-label="Permalink to &quot;下一次请求怎样找到同一个身份&quot;">​</a></h2><p>浏览器通常携带名为 <code>JSESSIONID</code> 的会话 Cookie，名称也可以自定义。Cookie 主要携带会话标识，认证上下文保存在服务端会话存储中，并非每次都把用户名密码重新发送给应用。</p><div class="language-text"><button title="Copy Code" class="copy"></button><span class="lang">text</span><pre class="shiki github-light vp-code" tabindex="0"><code><span class="line"><span>浏览器携带会话 Cookie</span></span>
+<span class="line"><span>  → 服务端找到对应 Session</span></span>
+<span class="line"><span>  → SecurityContextRepository 读取安全上下文</span></span>
+<span class="line"><span>  → 安全过滤器使当前请求可取得 Authentication</span></span>
+<span class="line"><span>  → 授权检查通过后进入 Controller</span></span></code></pre></div><p>因此 Controller 可以通过 Spring Security 提供的访问方式取得当前主体，也常见直接声明 <code>Authentication</code> 参数。业务层继续使用认证对象中的身份定位用户，不必让客户端再传一个可任意修改的用户 ID 来代表“我是谁”。</p><p>会话可能过期、被注销，或者当前请求只有匿名认证信息。不能仅凭“存在 Authentication 对象”就判断用户已经登录；应把访问限制交给相应的授权规则，并处理应用定义的未认证响应。请求结束后，安全过滤器还负责清理线程上的上下文，防止身份残留到复用的线程中。</p><p>身份恢复也不等于业务授权已经完成。例如某个接口允许登录用户访问，仍不意味着任意用户都能批准同一个项目的申请。服务端应结合当前认证身份与项目归属判断操作权限；客户端传入的项目编号只负责定位目标，不能成为权限证明。这能把安全链的通用访问规则与业务层的数据范围判断连接起来。</p><h2 id="有-session-也仍然需要关注请求来源" tabindex="-1">有 Session 也仍然需要关注请求来源 <a class="header-anchor" href="#有-session-也仍然需要关注请求来源" aria-label="Permalink to &quot;有 Session 也仍然需要关注请求来源&quot;">​</a></h2><p>浏览器会自动附带会话 Cookie，正是这种便利使会话认证需要考虑 CSRF。把接口改成接收 JSON，或把它标为 <code>permitAll()</code>，都不等于其他安全过滤器自动失效。是否要求 CSRF 令牌取决于请求和应用配置；不应仅为了让一个登录请求通过，就直接关闭整站防护。</p><p>调试“登录成功但下一次又未登录”时，可以顺着浏览器是否保存并发送 Cookie、服务端是否保存上下文、后续请求命中哪条安全链这条路径排查。跨域场景还要结合客户端凭据选项及 Cookie 属性判断，不能只检查认证接口有没有返回成功。</p><h2 id="参考与来源" tabindex="-1">参考与来源 <a class="header-anchor" href="#参考与来源" aria-label="Permalink to &quot;参考与来源&quot;">​</a></h2><p>本文整理自个人项目学习笔记，合并了安全过滤器链和会话认证相关记录。</p><ul><li><a href="https://docs.spring.io/spring-security/reference/servlet/architecture.html" target="_blank" rel="noreferrer">Spring Security：Servlet 安全架构与过滤器链选择</a></li><li><a href="https://docs.spring.io/spring-security/reference/servlet/authentication/session-management.html" target="_blank" rel="noreferrer">Spring Security：认证持久化与会话管理</a></li><li><a href="https://docs.spring.io/spring-security/reference/servlet/authentication/architecture.html" target="_blank" rel="noreferrer">Spring Security：Authentication 与 SecurityContext 架构</a></li></ul></div></div></div><!--]--></div></section><!--]--><div class="xp-taskbar" role="toolbar" aria-label="任务栏"><button class="xp-start" aria-label="开始菜单"><svg class="xp-ic" viewbox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#ic-flag"></use></svg>开始 </button><div class="xp-quick"><!--[--><button type="button" title="Internet · GitHub" aria-label="Internet · GitHub"><svg class="xp-ic" viewbox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#ic-globe"></use></svg></button><button type="button" title="技术笔记" aria-label="技术笔记"><svg class="xp-ic" viewbox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#ic-folder"></use></svg></button><button type="button" title="二次元专区" aria-label="二次元专区"><svg class="xp-ic" viewbox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#ic-anime"></use></svg></button><!--]--></div><div class="xp-tasks"><!--[--><button type="button" class="active xp-task-btn" title="Spring Security 会话登录：身份如何跨请求保存" aria-label="切换到窗口：Spring Security 会话登录：身份如何跨请求保存"><svg class="xp-ic" viewbox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#ic-computer"></use></svg><span class="t">Spring Security 会话登录：身份如何跨请求保存</span></button><!--]--></div><div class="xp-tray"><button type="button" class="tray-btn" title="樱花飘落 开/关" aria-label="樱花飘落特效 开关" aria-pressed="true"><svg class="xp-ic" viewbox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#ic-anime"></use></svg></button><button type="button" class="tray-btn" title="音量（假装可以调）" aria-label="音量（装饰玩梗按钮，无实际功能）" aria-pressed="false"><svg class="xp-ic" viewbox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#ic-volume"></use></svg></button><span class="sep"></span><span class="xp-clock" title=""></span></div><!----></div></div><!----></div></div>
+    <script>window.__VP_HASH_MAP__=JSON.parse("{\"404.md\":\"DSU6C4TI\",\"about.md\":\"B9RP1x8f\",\"anime.md\":\"D8VaZlPa\",\"index.md\":\"DrPf42XZ\",\"posts_first-post.md\":\"5RUZx9jM\",\"posts_index.md\":\"DCuCvvAp\",\"posts_kafka-outbox-notifications.md\":\"BUDu-3ls\",\"posts_leetcode-linked-list-cycle.md\":\"Bc1cJ0xN\",\"posts_leetcode-lru-cache.md\":\"KgxbmGqC\",\"posts_leetcode-monotonic-deque.md\":\"CShTEKZm\",\"posts_leetcode-prefix-sum.md\":\"MlaViq19\",\"posts_mcp-tools-rag-agent.md\":\"BL0xMsBO\",\"posts_python-reportkit-design.md\":\"Crw2ZWuL\",\"posts_rag-retrieval-pipeline.md\":\"9vUo9rvn\",\"posts_spring-security-session.md\":\"CL0O2k4x\",\"posts_spring-transaction-boundaries.md\":\"CjcBxxEd\"}");window.__VP_SITE_DATA__=JSON.parse("{\"lang\":\"zh-CN\",\"dir\":\"ltr\",\"title\":\"Yany_uki\",\"titleTemplate\":\":title · Yany_uki\",\"description\":\"Yany_uki 的 WinXP 风格个人博客 · 以代码为剑，奔赴热爱\",\"base\":\"/blog-pages/\",\"head\":[],\"router\":{\"prefetchLinks\":true},\"appearance\":false,\"themeConfig\":{},\"locales\":{},\"scrollOffset\":134,\"cleanUrls\":false}");</script>
+    
+  </body>
+</html>
